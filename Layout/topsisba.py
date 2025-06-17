@@ -692,7 +692,7 @@ async def ejecutar_topsisba(w, alphaBa, gamma, iter_max):
     ####################################################################################
     ### Para guardar información en archivo de EXCEl
 
-    base_filename = 'Experimentos/TOPSISBA'# Obtener el nombre del archivo base
+    base_filename = 'Experiments/TOPSISBA'# Obtener el nombre del archivo base
     counter = 1 # Inicializar un contador para el nombre del archivo
     excel_filename = f'{base_filename}_{counter}.xlsx'
 

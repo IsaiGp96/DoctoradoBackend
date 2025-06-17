@@ -23,7 +23,7 @@ from sklearn.preprocessing import StandardScaler
 from openpyxl.utils.dataframe import dataframe_to_rows
 
 # Ruta a la carpeta que contiene los archivos Excel
-carpeta_experimentos = "Experimentos"
+carpeta_Experiments = "Experiments"
 n= 9 #Alternativas
 d= 5 #Criterios 
 
@@ -37,10 +37,10 @@ promedio_tiempo = {}
 contiene = 0
 
 # Iterar sobre todos los archivos en la carpeta
-for archivo_excel in os.listdir(carpeta_experimentos):
+for archivo_excel in os.listdir(carpeta_Experiments):
     if archivo_excel.endswith(".xlsx"):
         nombre_archivo = os.path.splitext(archivo_excel)[0]  # Obtener el nombre del archivo sin la extensión
-        ruta_completa = os.path.join(carpeta_experimentos, archivo_excel)
+        ruta_completa = os.path.join(carpeta_Experiments, archivo_excel)
         
         try:
             df_tiempos = pd.read_excel(ruta_completa, usecols=["Tiempo de ejecución"]) # Leer la hoja "Tiempos"
@@ -96,10 +96,10 @@ print("\nContiene 'ACO':", contiene)
 resultados_dataframes = []
 
 # Iterar sobre todos los archivos en la carpeta
-for archivo_excel in os.listdir(carpeta_experimentos):
+for archivo_excel in os.listdir(carpeta_Experiments):
     if archivo_excel.endswith(".xlsx"):
         nombre_archivo = os.path.splitext(archivo_excel)[0]  # Obtener el nombre del archivo sin la extensión
-        ruta_completa = os.path.join(carpeta_experimentos, archivo_excel)
+        ruta_completa = os.path.join(carpeta_Experiments, archivo_excel)
         
         try:
             df_resultados = pd.read_excel(ruta_completa, sheet_name="Resultados_ejecución", header=None, usecols=[2]) # Leer la hoja 'Resultados'
@@ -270,13 +270,13 @@ if contiene==0:
     alpha_dict = {}  # Inicializar el diccionario alpha_dict
     archivo_aco_presente = False  # Bandera para verificar si se encontró algún archivo con 'ACO'
  
-    for archivo_excel in os.listdir(carpeta_experimentos):  # Obtener las últimas posiciones 
+    for archivo_excel in os.listdir(carpeta_Experiments):  # Obtener las últimas posiciones 
         if archivo_excel.endswith(".xlsx"):
             if 'ACO' in archivo_excel or archivo_excel.startswith('ACO') or archivo_excel.endswith('ACO.xlsx'):
                 archivo_aco_presente = True
                 continue  # Si 'ACO' está presente al inicio, al final o en el nombre del archivo, pasa al siguiente archivo sin ejecutar el código restante
             nombre_archivo = os.path.splitext(archivo_excel)[0]  # Obtener el nombre del archivo sin la extensión
-            ruta_completa = os.path.join(carpeta_experimentos, archivo_excel)
+            ruta_completa = os.path.join(carpeta_Experiments, archivo_excel)
             
             try:
                 # Intentar leer la hoja 'CP' o 'Posiciones'
@@ -319,9 +319,9 @@ if contiene==0:
 
 
         ### -- Alpha de Cronbach de la Matriz original
-        archivos = os.listdir(carpeta_experimentos) # Obtener la lista de archivos en la carpeta 'Experimentos'
+        archivos = os.listdir(carpeta_Experiments) # Obtener la lista de archivos en la carpeta 'Experiments'
         primer_archivo = archivos[0] # Seleccionar el primer archivo de la lista
-        ruta_archivo = os.path.join(carpeta_experimentos, primer_archivo) # Construir la ruta completa al archivo
+        ruta_archivo = os.path.join(carpeta_Experiments, primer_archivo) # Construir la ruta completa al archivo
 
         try:
             # Leer la pestaña 'Matriz_decisión' del primer archivo, seleccionando solo las últimas 5 columnas
@@ -382,7 +382,7 @@ print()
 
 
 ###################
-## estadísticas de los resultados de los experimentos
+## estadísticas de los resultados de los Experiments
 ###################
 
 ### --- Calcula la moda de cada columna en el DataFrame
@@ -502,8 +502,8 @@ coef_var2 = df_resultados_completos.std() / df_resultados_completos.mean()
         #Rango intercuartil (IQR): El rango intercuartil es la diferencia entre el tercer cuartil (Q3) y el primer cuartil (Q1). Un IQR pequeño indica una menor variabilidad en los datos. Si el IQR es pequeño en todas las columnas, sugiere que los datos tienen una menor dispersión, lo que contribuye a la robustez de los resultados.
 iqr2 = df_resultados_completos.quantile(0.75) - df_resultados_completos.quantile(0.25)
 #print("Rngo de intercuartil",iqr2)
-# 3) Correlaciones: Calcula las correlaciones entre las columnas para identificar posibles relaciones entre los resultados de diferentes experimentos.
-    #Calcular las correlaciones entre las columnas te ayuda a identificar posibles relaciones entre los resultados de diferentes experimentos. Si hay correlaciones fuertes entre algunas columnas, podría indicar que ciertos factores están influenciando consistentemente los resultados. Esto puede ser útil para entender la estabilidad de las relaciones observadas en el experimento.    
+# 3) Correlaciones: Calcula las correlaciones entre las columnas para identificar posibles relaciones entre los resultados de diferentes Experiments.
+    #Calcular las correlaciones entre las columnas te ayuda a identificar posibles relaciones entre los resultados de diferentes Experiments. Si hay correlaciones fuertes entre algunas columnas, podría indicar que ciertos factores están influenciando consistentemente los resultados. Esto puede ser útil para entender la estabilidad de las relaciones observadas en el experimento.    
 correlaciones2 = df_resultados_completos.corr()
 #print("correlaciones",correlaciones2)
 

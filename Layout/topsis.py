@@ -162,7 +162,7 @@ async def ejecutar_topsis(w):
     ####################################################################################
     ### Para guardar información en archivo de EXCEl
 
-    base_filename = 'Experimentos/TOPSIS'# Obtener el nombre del archivo base
+    base_filename = 'Experiments/TOPSIS'# Obtener el nombre del archivo base
     counter = 1 # Inicializar un contador para el nombre del archivo
     excel_filename = f'{base_filename}_{counter}.xlsx'
 

@@ -579,7 +579,7 @@ async def ejecutar_ba(w, alpha, gamma, iter_max):
     #dataFmin= pd.DataFrame(FuncObj)
     #dataFmax= pd.DataFrame(IF_max)
 
-    with pd.ExcelWriter('Experimentos/BA.xlsx', engine='xlsxwriter') as writer:
+    with pd.ExcelWriter('Experiments/BA.xlsx', engine='xlsxwriter') as writer:
         #dataGral.to_excel(writer, sheet_name='Generales')
         dataResult.to_excel(writer, sheet_name='Resultados')
         dataI.to_excel(writer, sheet_name='Iniciales')

@@ -538,7 +538,7 @@ async def ejecutar_dapso(w, wwi, c1, c2, T, r1, r2):
     ####################################################################################
     ### Para guardar información en archivo de EXCEL
 
-    base_filename = 'Experimentos/DAPSO'# Obtener el nombre del archivo base
+    base_filename = 'Experiments/DAPSO'# Obtener el nombre del archivo base
     counter = 1 # Inicializar un contador para el nombre del archivo
     excel_filename = f'{base_filename}_{counter}.xlsx'
 

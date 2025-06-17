@@ -594,7 +594,7 @@ async def ejecutar_moorapso(w, wwi, c1, c2, T, r1, r2):
     ####################################################################################
     ### Para guardar información en archivo de EXCEl
 
-    base_filename = 'Experimentos/MOORAPSO'# Obtener el nombre del archivo base
+    base_filename = 'Experiments/MOORAPSO'# Obtener el nombre del archivo base
     counter = 1 # Inicializar un contador para el nombre del archivo
     excel_filename = f'{base_filename}_{counter}.xlsx'
 

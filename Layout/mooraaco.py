@@ -217,7 +217,7 @@ async def ejecutar_mooraaco(EV,w,alpha,beta,rho,Q,n_ants,n_iterations):
     ####################################################################################
     ### Para guardar información en archivo de EXCEl
 
-    base_filename = 'Experimentos/MOORAACO'# Obtener el nombre del archivo base
+    base_filename = 'Experiments/MOORAACO'# Obtener el nombre del archivo base
     counter = 1 # Inicializar un contador para el nombre del archivo
     excel_filename = f'{base_filename}_{counter}.xlsx'
 

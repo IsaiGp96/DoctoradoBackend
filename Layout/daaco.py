@@ -212,7 +212,7 @@ async def ejecutar_daaco(w, alpha, beta, rho, Q, n_ants, iter_max):
     ####################################################################################
     ### Para guardar información en archivo de EXCEl
 
-    base_filename = 'Experimentos/DAACO'# Obtener el nombre del archivo base
+    base_filename = 'Experiments/DAACO'# Obtener el nombre del archivo base
     counter = 1 # Inicializar un contador para el nombre del archivo
     excel_filename = f'{base_filename}_{counter}.xlsx'
 

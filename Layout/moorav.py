@@ -140,7 +140,7 @@ async def ejecutar_moorav(w):
     ####################################################################################
     ### Para guardar información en archivo de EXCEl
 
-    base_filename = 'Experimentos/MOORA'# Obtener el nombre del archivo base
+    base_filename = 'Experiments/MOORA'# Obtener el nombre del archivo base
     counter = 1 # Inicializar un contador para el nombre del archivo
     excel_filename = f'{base_filename}_{counter}.xlsx'
 
@@ -166,7 +166,7 @@ async def ejecutar_moorav(w):
     dataECA = pd.DataFrame(EV)
 
 
-    with pd.ExcelWriter('Experimentos/MOORA.xlsx', engine='xlsxwriter') as writer:
+    with pd.ExcelWriter('Experiments/MOORA.xlsx', engine='xlsxwriter') as writer:
         dataT.to_excel(writer, sheet_name='Tiempos')
         dataAlt.to_excel(writer, sheet_name='Ranking_alternativas')
         dataOrig.to_excel(writer, sheet_name='Matriz_decisión')
