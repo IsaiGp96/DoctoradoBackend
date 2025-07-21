@@ -1,15 +1,20 @@
+import os
 import asyncio
 import hashlib
 import re
+from werkzeug.security import generate_password_hash
 from array import array
 from datetime import datetime, timedelta
 from functools import wraps
+from Models.models import db, init_db
+from Models.auth import auth_bp, login_required, roles_required
+from Models.models import User
 
 #import jwt
 #import mysql.connector
 import numpy as np
 from flask import (Flask, jsonify, make_response, render_template, request,
-                   send_from_directory, session)
+                   send_from_directory, session, redirect, url_for)
 #from flask_sqlalchemy import SQLAlchemy
 from numpy import ndarray
 from openpyxl import load_workbook
@@ -31,31 +36,50 @@ from Layout.topsisaco import ejecutar_topsisaco
 from Layout.topsisba import ejecutar_topsisba
 from Layout.topsispso import ejecutar_topsispso
 
-#db = SQLAlchemy()
+# ----------- BASE DE DATOS: CONFIGURACIÓN ROBUSTA -----------
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+DB_DIR = os.path.join(BASE_DIR, 'db')
+DB_PATH = os.path.join(DB_DIR, 'users.db')
+# print('\n=== DEBUG DE INICIALIZACIÓN DE BASE DE DATOS ===')
+# print('Directorio base:', BASE_DIR)
+# print('Directorio db:', DB_DIR)
+# print('Ruta absoluta de users.db:', DB_PATH)
+
+os.makedirs(DB_DIR, exist_ok=True)
+
+# Prueba de permisos de escritura en la carpeta db
+try:
+    test_path = os.path.join(DB_DIR, 'test.txt')
+    with open(test_path, 'w') as f:
+        f.write('ok')
+    os.remove(test_path)
+except Exception as e:
+    print('ERROR: No puedo escribir en la carpeta db/:', e)
+
+# ----------- CONFIGURACIÓN DE FLASK Y SQLALCHEMY -----------
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:53Zc56erWZsY7@db.ogyulszumjcstdztensn.supabase.co:5432/postgres"
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_PATH}'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = '563cebb3aceb49e0a6c79ded5c717235'
 
-# db.init_app(app)
-# class SupaUser(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     nombredb = db.Column(db.String, unique=True, nullable=False)
-#     escolaridaddb = db.Column(db.String, nullable=False)
-#     #nacimientodb = db.Column(db.Date, nullable=False)
-#     emaildb = db.Column(db.String, nullable=False)
-#     passworddb = db.Column(db.String, nullable=False)
-    
-                    #Acerca de
+db.init_app(app)
+init_db(app)
+
+app.register_blueprint(auth_bp)
+
 #-------------------------------------------------------------------------------------------------------------------
 @app.route('/acercade')
 def acercade():
     return render_template('acercade.html')
+
 @app.route('/casoexperimental')
+@roles_required('user','admin', 'superadmin')
 def casoexperimental():
     return render_template('casoexperimental.html')
                 #Algoritmos PSO
 #-------------------------------------------------------------------------------------------------------------------
 @app.route('/pso')
+@roles_required('user','admin', 'superadmin')
 def pso():
     try:
         # Obtén los datos del formulario
@@ -77,8 +101,8 @@ def pso():
     except Exception as e:
         return render_template('pso.html', error_message=str(e))
 
-
 @app.route('/pso', methods=['POST'])
+@roles_required('user','admin', 'superadmin')
 def calcular_pso():
     try:
         # Obtén los datos del formulario
@@ -113,6 +137,7 @@ def calcular_pso():
 
 #-------------------------------------------------------------------------------------------------------------------
 @app.route('/dapso')
+@roles_required('user','admin', 'superadmin')
 def dapso():
     try:
         # Obtener los datos del formulario
@@ -135,6 +160,7 @@ def dapso():
         return render_template('dapso.html', error_message=str(e))
 
 @app.route('/dapso', methods=['POST'])
+@roles_required('user','admin', 'superadmin')
 def calcular_dapso():
    try:
         # Obtén los datos del formulario
@@ -171,6 +197,7 @@ def calcular_dapso():
 #-------------------------------------------------------------------------------------------------------------------
 
 @app.route('/moorapso', methods=['POST'])
+@roles_required('user','admin', 'superadmin')
 def calcular_moorapso():
     try:
         # Obtén los datos del formulario
@@ -204,6 +231,7 @@ def calcular_moorapso():
 
 
 @app.route('/moorapso')
+@roles_required('user','admin', 'superadmin')
 def moorapso():
     try:
         # Obtén los datos del formulario
@@ -230,6 +258,7 @@ def moorapso():
     #-------------------------------------------------------------------------------------------------------------------
 
 @app.route('/topsispso')
+@roles_required('user','admin', 'superadmin')
 def topsispso():
      try:
         # Obtén los datos del formulario
@@ -252,6 +281,7 @@ def topsispso():
         return render_template('topsispso.html', error_message=str(e))
 
 @app.route('/topsispso', methods=['POST'])
+@roles_required('user','admin', 'superadmin')
 def calcular_topsispso():
     try:
     # Obtén los datos del formulario
@@ -289,6 +319,7 @@ def calcular_topsispso():
 
 
 @app.route('/comparacion')
+@roles_required('user','admin', 'superadmin')
 def comparacionPura():
     try:
         # Obtén los datos del formulario
@@ -315,6 +346,7 @@ def comparacionPura():
 
 
 @app.route('/comparacion', methods=['POST'])
+@roles_required('user','admin', 'superadmin')
 def calcular_comparacionPura():
     try:
         # Obtén los datos del formulario
@@ -357,6 +389,7 @@ def calcular_comparacionPura():
 
 
 @app.route('/comparacionPso')
+@roles_required('user','admin', 'superadmin')
 def comparacion():
     try:
         # Obtén los datos del formulario
@@ -383,6 +416,7 @@ def comparacion():
 
 
 @app.route('/comparacionPso', methods=['POST'])
+@roles_required('user','admin', 'superadmin')
 def calcular_comparacion():
     try:
         # Obtén los datos del formulario
@@ -424,6 +458,7 @@ def calcular_comparacion():
             # Algoritmos BA
 #-------------------------------------------------------------------------------------------------------------------
 @app.route('/ba')
+@roles_required('user','admin', 'superadmin')
 def ba():
     try:
         w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
@@ -441,6 +476,7 @@ def ba():
 
 
 @app.route('/ba', methods=['POST'])
+@roles_required('user','admin', 'superadmin')
 def calcular_ba():
     try:
         # Obtén los datos del formulario
@@ -471,6 +507,7 @@ def calcular_ba():
         #Algoritmo_Ruta DA -BA
 
 @app.route('/daba')
+@roles_required('user','admin', 'superadmin')
 def daba():
     try:
         # Obtén los datos del formulario
@@ -489,6 +526,7 @@ def daba():
 
 
 @app.route('/daba', methods=['POST'])
+@roles_required('user','admin', 'superadmin')
 def calcular_daba():
     try:
         # Obtén los datos del formulario de la solicitud POST
@@ -514,6 +552,7 @@ def calcular_daba():
         #Algoritmo_Ruta MOORA - BA
 
 @app.route('/mooraba')
+@roles_required('user','admin', 'superadmin')
 def mooraba():
     try:
         # Obtén los datos del formulario
@@ -532,6 +571,7 @@ def mooraba():
 
 
 @app.route('/mooraba', methods=['POST'])
+@roles_required('user','admin', 'superadmin')
 def calcular_mooraba():
     try:
         # Obtén los datos del formulario de la solicitud POST
@@ -555,6 +595,7 @@ def calcular_mooraba():
 
 #-------------------------------------------------------------------------------------------------------------------
 @app.route('/topsisba')
+@roles_required('user','admin', 'superadmin')
 def topsisba():
     try:
         # Obtén los datos del formulario
@@ -573,6 +614,7 @@ def topsisba():
 
 
 @app.route('/topsisba', methods=['POST'])
+@roles_required('user','admin', 'superadmin')
 def calcular_topsisba():
     try:
         # Obtén los datos del formulario de la solicitud POST
@@ -600,6 +642,7 @@ def calcular_topsisba():
         #Algoritmo_Ruta DA-ACO
 
 @app.route('/daaco')
+@roles_required('user','admin', 'superadmin')
 def daaco():
     try:
         w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
@@ -621,6 +664,7 @@ def daaco():
 
 
 @app.route('/daaco', methods=['POST'])
+@roles_required('user','admin', 'superadmin')
 def calcular_daaco():
     try:
         w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
@@ -648,6 +692,7 @@ def calcular_daaco():
         #Algoritmo_Ruta MOORA-ACO
 
 @app.route('/mooraaco')
+@roles_required('user','admin', 'superadmin')
 def mooraaco():
     try:
         ev_input = request.form['ev']  # Obtén el valor
@@ -673,6 +718,7 @@ def mooraaco():
 
 
 @app.route('/mooraaco', methods=['POST'])
+@roles_required('user','admin', 'superadmin')
 def calcular_mooraaco():
     try:
         ev_input = request.form['ev']  # Obtén el valor
@@ -705,6 +751,7 @@ def calcular_mooraaco():
         #Algoritmo_Ruta TOPSIS-ACO
 
 @app.route('/topsisaco')
+@roles_required('user','admin', 'superadmin')
 def topsisaco():
     try:
         w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
@@ -732,6 +779,7 @@ def topsisaco():
 
 
 @app.route('/topsisaco', methods=['POST'])
+@roles_required('user','admin', 'superadmin')
 def calcular_topsisaco():
     try:
         w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
@@ -765,6 +813,7 @@ def calcular_topsisaco():
 
 #-------------------------------------------------------------------------------------------------------------------
 @app.route('/comparacionGeneral')
+@roles_required('user','admin', 'superadmin')
 def comparacionGeneral():
     try:
         # Generales
@@ -819,6 +868,7 @@ def comparacionGeneral():
 
 
 @app.route('/comparacionGeneral', methods=['POST'])
+@roles_required('user','admin', 'superadmin')
 def calcular_comparacionGeneral():
     try:
         # Obtén los datos del formulario
@@ -886,6 +936,7 @@ def calcular_comparacionGeneral():
 #-------------------------------------------------------------------------------------------------------------------
 
 @app.route('/comparacionBa')
+@roles_required('user','admin', 'superadmin')
 def comparacionBa():
     try:
         # Obtén los datos del formulario
@@ -910,6 +961,7 @@ def comparacionBa():
 
 
 @app.route('/comparacionBa', methods=['POST'])
+@roles_required('user','admin', 'superadmin')
 def calcular_comparacionBa():
     try:
         # Obtén los datos del formulario
@@ -974,6 +1026,7 @@ def calcular_comparacionBa():
 
 
 @app.route('/comparacionAco', methods=['GET', 'POST'])
+@roles_required('user','admin', 'superadmin')
 def comparacionAco():
     if request.method == 'POST':
         try:
@@ -1018,6 +1071,7 @@ def comparacionAco():
         #Algoritmo_Ruta ACO
 
 @app.route('/aco')
+@roles_required('user','admin', 'superadmin')
 def aco():
     try:
         # Obtén los datos del formulario
@@ -1038,6 +1092,7 @@ def aco():
 
 
 @app.route('/aco', methods=['POST'])
+@roles_required('user','admin', 'superadmin')
 def calcular_aco():
     try:
        # Obtén los datos del formulario
@@ -1061,11 +1116,11 @@ def calcular_aco():
         return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
 #-------------------------------------------------------------------------------------------------------------------
 
-
 #-------------------------------------------------------------------------------------------------------------------
         #Algoritmo_Ruta TOPSIS
 
 @app.route('/topsis')
+@roles_required('user','admin', 'superadmin')
 def topsis():
     try:
         # Obtén los datos del formulario
@@ -1082,6 +1137,7 @@ def topsis():
 
 
 @app.route('/topsis', methods=['POST'])
+@roles_required('user','admin', 'superadmin')
 def calcular_topsis():
     try:
         # Obtén los datos del formulario
@@ -1107,6 +1163,7 @@ def calcular_topsis():
         #Algoritmo_Ruta MOORAV
 
 @app.route('/moorav')
+@roles_required('user','admin', 'superadmin')
 def moorav():
     try:
         # Obtén los datos del formulario
@@ -1124,6 +1181,7 @@ def moorav():
 
 
 @app.route('/moorav', methods=['POST'])
+@roles_required('user','admin', 'superadmin')
 def calcular_moorav():
     try:
         # Obtén los datos del formulario
@@ -1153,6 +1211,7 @@ def calcular_moorav():
         #Algoritmo_Ruta MOORAV
 
 @app.route('/da')
+@roles_required('user','admin', 'superadmin')
 def da():
     try:
         # Obtén los datos del formulario
@@ -1170,6 +1229,7 @@ def da():
 
 
 @app.route('/da', methods=['POST'])
+@roles_required('user','admin', 'superadmin')
 def calcular_da():
     try:
         # Obtén los datos del formulario
@@ -1194,6 +1254,7 @@ def calcular_da():
     return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
 #-------------------------------------------------------------------------------------------------------------------
 @app.route('/index', methods=['POST'])
+@roles_required('user','admin', 'superadmin')
 def index():
     # Parámetros de control (ingresan)
     w=request.form['w']
@@ -1508,204 +1569,134 @@ def index():
     return render_template('index.html', **context)
 
 @app.route('/')
+@roles_required('user','admin', 'superadmin')
 def home():
     # if not session.get('logged_in'):
     #     return render_template('login.html')
     # else:
-        return render_template('index.html')
-
-# @app.route('/login', methods=['GET', 'POST'])
-# def log_in():
-#     if request.method=='POST':
-#         emailLogin = request.form['email']
-#         passLogin = request.form['password']
-#         mensaje = ''
-#         password_Object = hashlib.sha256(passLogin.encode())
-#         passwordHashed =  password_Object.hexdigest()
-#         all_users = SupaUser.query.all()
-#         for user in all_users:
-#             print(f"ID: {user.id}, Username: {user.nombredb}, Email: {user.emaildb}, Password: {user.passworddb}")
-#         if emailLogin == user.emaildb and passwordHashed == user.passworddb:
-#             print("Usuario Correcto")
-#             mensaje = "Usuario Correcto"
-#             session['logged_in'] = True
-#             return render_template('index.html')
-#         else:
-#             print("Usuario Incorrecto")
-#             mensaje = "Usuario Incorrecto"
-#             return render_template('login.html')
-#     else:
-#         return render_template('login.html')
-
-# @app.route('/signup')
-# def sign_up():
-#     return render_template('signup.html')
-
-# @app.route('/signup', methods=['POST'])
-# def sign_validation():
-    
-#     listaErrores = {
-#         'nombre': '',
-#         'escolaridad' : '',
-#         #'nacimiento' : '',
-#         'email' : '',
-#         'password' : ''
-#     }
-#     if request.method == 'POST': 
-#         nombre = request.form['nombre']
-#         escolaridad = request.form['escolaridad']
-#         #nacimiento = request.form['nacimiento']
-#         email = request.form['email']
-#         password = request.form['password']
-#         mensaje = ''
-            
-#         if not nombre:
-#             listaErrores['nombre'] = 'Completa este campo'
-        
-#         elif not re.match("^^[a-zA-Z\s]+$", nombre):
-#                 listaErrores['nombre'] = 'Favor de ingresar solo letras'
-        
-#         if not escolaridad:
-#             listaErrores['escolaridad'] = 'Completa este campo'
-        
-#         elif not re.match("^[a-zA-Z\s]+$", escolaridad):
-#                 listaErrores['escolaridad'] = 'Favor de ingresar solo letras'
-        
-#         # if not nacimiento:
-#         #     listaErrores['nacimiento'] = 'Completa este campo'
-
-#         if not email:
-#             listaErrores['email'] = 'Completa este campo'
-        
-#         elif not re.match(r'^[\w\.-]+@[\w\.-]+$', email):
-#                 listaErrores['email'] = 'Ingresa un correo valido'
-                
-#         if not password:
-#             listaErrores['password'] = 'Completa este campo'
-                        
-#         elif len(password) < 8 or len(password) > 12 :
-#                 listaErrores['password'] = 'La contrasena debe tener entre 8 y 12 caracteres' 
-        
-#         if all(value == '' for value in listaErrores.values()):
-#             password_Object = hashlib.sha256(password.encode())
-#             passwordHashed =  password_Object.hexdigest()
-#             try:
-#                 with app.app_context():
-#                     db.create_all()
-#                     user = SupaUser(nombredb=nombre, escolaridaddb=escolaridad, emaildb=email, passworddb=passwordHashed)
-#                     db.session.add(user)
-#                     db.session.commit()
-#                     mensaje = "Registro realizado con éxito!"
-#                 return render_template("/login.html", mensaje=mensaje)
-#             except Exception as e:
-#                 print(f'Error en la base de datos: {str(e)}')
-#                 mensaje = "Ocurrió un error en la base de datos, por favor inténtalo de nuevo."
-#         else:
-#             return render_template("/signup.html", listaErrores=listaErrores)
-
-#     return render_template("/signup.html", listaErrores=listaErrores)
-
+    user = None
+    if 'user_id' in session:
+        user = User.query.get(session['user_id'])
+        return render_template('index.html', usuario=user.username if user else 'Invitado')    
+    #return render_template('index.html')
 
 @app.route('/descargar-pso')
+@roles_required('user','admin', 'superadmin')
 def descargar_excel_pso():
-    directorio = 'Experiments'  # Asegúrate de que este directorio exista y sea accesible
+    directorio = 'Experiments'  
     filename = 'PSO.xlsx'
     return send_from_directory(directorio, filename, as_attachment=True)
 
 @app.route('/descargar-dapso')
+@roles_required('user','admin', 'superadmin')
 def descargar_excel_dapso():
-    directorio = 'Experiments'  # Asegúrate de que este directorio exista y sea accesible
+    directorio = 'Experiments'  
     filename = 'DAPSO_1.xlsx'
     return send_from_directory(directorio, filename, as_attachment=True)
 
 @app.route('/descargar-moorapso')
+@roles_required('user','admin', 'superadmin')
 def descargar_excel_moorapso():
-    directorio = 'Experiments'  # Asegúrate de que este directorio exista y sea accesible
+    directorio = 'Experiments'  
     filename = 'MOORAPSO_1.xlsx'
     return send_from_directory(directorio, filename, as_attachment=True)
 
 @app.route('/descargar-topsispso')
+@roles_required('user','admin', 'superadmin')
 def descargar_excel_topsispso():
-    directorio = 'Experiments'  # Asegúrate de que este directorio exista y sea accesible
+    directorio = 'Experiments'  
     filename = 'TOPSISPSO_1.xlsx'
     return send_from_directory(directorio, filename, as_attachment=True)
 
 @app.route('/descargar-ba')
+@roles_required('user','admin', 'superadmin')
 def descargar_excel_ba():
-    directorio = 'Experiments'  # Asegúrate de que este directorio exista y sea accesible
+    directorio = 'Experiments'  
     filename = 'BA.xlsx'
     return send_from_directory(directorio, filename, as_attachment=True)
 
 @app.route('/descargar-daba')
+@roles_required('user','admin', 'superadmin')
 def descargar_excel_daba():
-    directorio = 'Experiments'  # Asegúrate de que este directorio exista y sea accesible
+    directorio = 'Experiments'  
     filename = 'DABA_1.xlsx'
     return send_from_directory(directorio, filename, as_attachment=True)
 
 @app.route('/descargar-mooraba')
+@roles_required('user','admin', 'superadmin')
 def descargar_excel_mooraba():
-    directorio = 'Experiments'  # Asegúrate de que este directorio exista y sea accesible
+    directorio = 'Experiments'  
     filename = 'MOORABA_1.xlsx'
     return send_from_directory(directorio, filename, as_attachment=True)
 
 @app.route('/descargar-topsisba')
+@roles_required('user','admin', 'superadmin')
 def descargar_excel_topsisba():
-    directorio = 'Experiments'  # Asegúrate de que este directorio exista y sea accesible
+    directorio = 'Experiments'  
     filename = 'TOPSISBA_1.xlsx'
     return send_from_directory(directorio, filename, as_attachment=True)
 
 @app.route('/descargar-aco')
+@roles_required('user','admin', 'superadmin')
 def descargar_excel_aco():
-    directorio = 'Experiments'  # Asegúrate de que este directorio exista y sea accesible
+    directorio = 'Experiments'  
     filename = 'ACO_1.xlsx'
     return send_from_directory(directorio, filename, as_attachment=True)
 #Aquí hubo un error
 @app.route('/descargar-daaco')
+@roles_required('user','admin', 'superadmin')
 def descargar_excel_daaco():
-    directorio = 'Experiments'  # Asegúrate de que este directorio exista y sea accesible
+    directorio = 'Experiments'  
     filename = 'DAACO_1.xlsx'
     return send_from_directory(directorio, filename, as_attachment=True)
 
 @app.route('/descargar-mooraaco')
+@roles_required('user','admin', 'superadmin')
 def descargar_excel_mooraaco():
-    directorio = 'Experiments'  # Asegúrate de que este directorio exista y sea accesible
+    directorio = 'Experiments'  
     filename = 'MOORAACO_1.xlsx'
     return send_from_directory(directorio, filename, as_attachment=True)
 
 @app.route('/descargar-topsisaco')
+@roles_required('user','admin', 'superadmin')
 def descargar_excel_topsisaco():
-    directorio = 'Experiments'  # Asegúrate de que este directorio exista y sea accesible
+    directorio = 'Experiments'  
     filename = 'TOPSISACO_1.xlsx'
     return send_from_directory(directorio, filename, as_attachment=True)
 
 @app.route('/descargar-topsis')
+@roles_required('user','admin', 'superadmin')
 def descargar_excel_topsis():
-    directorio = 'Experiments'  # Asegúrate de que este directorio exista y sea accesible
+    directorio = 'Experiments'  
     filename = 'TOPSIS_1.xlsx'
     return send_from_directory(directorio, filename, as_attachment=True)
 
 @app.route('/descargar-moorav')
+@roles_required('user','admin', 'superadmin')
 def descargar_excel_moorav():
-    directorio = 'Experiments'  # Asegúrate de que este directorio exista y sea accesible
+    directorio = 'Experiments'  
     filename = 'MOORA_1.xlsx'
     return send_from_directory(directorio, filename, as_attachment=True)
 
 @app.route('/descargar-da')
+@roles_required('user','admin', 'superadmin')
 def descargar_excel_da():
-    directorio = 'Experiments'  # Asegúrate de que este directorio exista y sea accesible
+    directorio = 'Experiments'  
     filename = 'DA_1.xlsx'
     return send_from_directory(directorio, filename, as_attachment=True)
 
 @app.route('/descargar-zip')
+@roles_required('user','admin', 'superadmin')
 def descargar_zip():
-    directorio = ''  # Asegúrate de que este directorio exista y sea accesible
+    directorio = ''  
     filename = 'Compara.zip'
     return send_from_directory(directorio, filename, as_attachment=True)
 
 
 @app.route('/descargar-parametros')
+@roles_required('user','admin', 'superadmin')
 def descargar_parametros():
-    directorio = ''  # Asegúrate de que este directorio exista y sea accesible
+    directorio = ''  
     filename = 'entradas-Programa.xlsx'
     return send_from_directory(directorio, filename, as_attachment=True)
 
@@ -1713,6 +1704,32 @@ def descargar_parametros():
 def login():
     
     return render_template('login.html')
+
+@app.route('/signup', methods=['GET','POST'])
+def signup():
+    msg = ''
+    if request.method == 'POST':
+        username = request.form['username'].strip()
+        password = request.form['password'].strip()
+        email = request.form.get('email', '').strip()
+
+        # Validación: usuario único
+        if User.query.filter_by(username=username).first():
+            msg = 'El usuario ya existe.'
+        elif len(password) < 4:
+            msg = 'La contraseña es demasiado corta.'
+        else:
+            new_user = User(
+                username=username,
+                password_hash=generate_password_hash(password),
+                role='user'
+            )
+            db.session.add(new_user)
+            db.session.commit()
+            msg = 'Cuenta creada. Ya puedes iniciar sesión.'
+            return redirect(url_for('login'))
+
+    return render_template('signup.html', msg=msg)
 
 if '__main__' == __name__:
     app.run(port=5000, debug=True)
