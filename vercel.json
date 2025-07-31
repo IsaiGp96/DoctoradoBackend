@@ -1,8 +1,7 @@
 {
     "functions":{
       "api/**":{
-          "includeFiles": "requirements.txt",
-          "runtime": "python3.9"
+          "includeFiles": "requirements.txt"
       }  
     },
     "rewrites":[
