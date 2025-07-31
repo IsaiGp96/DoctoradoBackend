@@ -1,8 +1,18 @@
 {
+    "functions":{
+      "api/**":{
+          "includeFiles": "requirements.txt",
+          "runtime": "python3.11"
+      }  
+    },
     "rewrites":[
         {
             "source": "/(.*)",
-            "destination":"/"
+            "destination":"/api/main.py"
+        },
+        {
+            "source":"/(.*)",
+            "destination": "/"
         }
     ]
 }
