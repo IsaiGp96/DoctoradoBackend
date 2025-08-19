@@ -7,39 +7,32 @@
   <title>PSO</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <link rel="stylesheet" href="/static/css/index.css">
+
 </head>
 
 <body>
-  <nav class="bg-light p-4">
-    <div class="container mx-auto flex justify-between items-center">
-      <a class="navbar-brand" href="/">Algorithms App</a>
-      <div class="flex">
-        <ul class="flex space-x-4">
-          <li class="nav-item active">
-            <a class="nav-link" href="/">Inicio</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/topsis">MCDM</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/pso">PSO</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/ba">BA</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/aco">ACO</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/comparacionGeneral">Comparación</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/acercade">Acerca De</a>
-          </li>
-        </ul>
-      </div>
-    </div>
+  <nav class="navbar-principal" role="navigation" aria-label="Navegación principal">
+    <a class="brand" href="/">Algorithms App</a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú">
+      <span class="hamburger" aria-hidden="true"></span>
+    </button>
+
+        <ul id="menu" class="menu">
+      <li><a href="/">Inicio</a></li>
+      <li><a href="/casoexperimental">Caso Experimental</a></li>
+      <li><a href="/topsis">MCDM</a></li>
+      <li><a href="/pso">PSO</a></li>
+      <li><a href="/ba">BA</a></li>
+      <li><a href="/aco">ACO</a></li>
+      <li><a href="#" class="soon" aria-disabled="true" data-tip="Próximamente">ABA</a></li>
+      <li><a href="/comparacion">Comparación</a></li>
+      <li><a href="/acercade">Acerca De</a></li>
+      <li><a href="#" class="soon" aria-disabled="true" data-tip="Próximamente">Publicaciones</a></li>
+    </ul>
   </nav>
+
+
   <div class="bg-white pt-8">
     <div class="container mx-auto rounded-xl bg-white px-8 py-10 shadow-2xl">
       <h1 class="text-center text-3xl font-semibold text-gray-800 lg:text-4xl">Optimización de enjambre de partículas
@@ -57,7 +50,7 @@
     </div>
   </div>
 
-  <div class="mt-16 text-center mx-auto max-w-5xl overflow-hidden rounded-xl bg-white">
+  <div class="mt-16 text-justify mx-auto max-w-5xl overflow-hidden rounded-xl bg-white">
     <div class="flex justify-center">
       <section class="mt-20">
         <div class="mx-auto max-w-lg">
@@ -68,7 +61,7 @@
             ¿Cómo funciona el algoritmo PSO? Aquí te lo explicamos:
           </h1>
           <p class="text-justify text-gray-500">
-          <div class="mt-10" style="text-align: left;">
+          <div class="mt-10">
             <li><strong>Partículas:</strong></li>
             <h2>
               En el corazón del PSO se encuentra una población de "partículas" virtuales,
@@ -80,7 +73,7 @@
           </p>
 
           <p class="text-justify text-gray-500">
-          <div class="mt-10" style="text-align: left;">
+          <div class="mt-10">
             <li><strong>Velocidades y posiciones:</strong></li>
             <h2>
               Cada partícula tiene dos componentes clave: su posición actual en el espacio de búsqueda y su velocidad.
@@ -91,9 +84,9 @@
           </div>
           </p>
           <p class="text-justify text-gray-500">
-          <div class="mt-10" style="text-align: left;">
+          <div class="mt-10">
             <li><strong>Mejor posición personal (pbest): </strong></li>
-            <h2>
+            <h2 class="text-justify">
               Cada partícula lleva un registro de la mejor posición que ha encontrado hasta ese momento, conocida como
               "pbest" (personal best). Inicialmente, el "pbest" de cada partícula es su posición inicial.
             </h2>
@@ -101,7 +94,7 @@
           </div>
           </p>
           <p class="text-justify text-gray-500">
-          <div class="mt-10" style="text-align: left;">
+          <div class="mt-10">
             <li><strong>Mejor posición global (gbest): </strong></li>
             <h2>
               Además de su mejor posición personal, las partículas también están al tanto de la mejor posición
@@ -110,7 +103,7 @@
           </div>
           </p>
           <p class="text-justify text-gray-500">
-          <div class="mt-10" style="text-align: left;">
+          <div class="mt-10">
             <li><strong>Movimiento de las partículas:</strong></li>
             <h2>
               En cada iteración, las partículas ajustan su velocidad y posición siguiendo dos influencias clave: su
@@ -122,7 +115,7 @@
           </div>
           </p>
           <p class="text-justify text-gray-500">
-          <div class="mt-10" style="text-align: left;">
+          <div class="mt-10">
             <li><strong>Equilibrio entre exploración y explotación: </strong></li>
             <h2>
               El PSO logra un equilibrio entre la exploración (buscar nuevas áreas del espacio de búsqueda) y la
@@ -132,7 +125,7 @@
           </div>
           </p>
           <p class="text-justify text-gray-500">
-          <div class="mt-10" style="text-align: left;">
+          <div class="mt-10">
             <li><strong> Criterio de parada:</strong></li>
             <h2>
               El algoritmo PSO se ejecuta durante un número fijo de iteraciones o hasta que se cumple un criterio de
@@ -152,10 +145,9 @@
       </section>
     </div>
   </div>
-  <div class=" flex items-center justify-center max-w-lg">
-    <a class="text-lg p-8 text-blue-500 transition-all duration-100 ease-in-out hover:font-bold nav-link"
-      href="/casoexperimental">Caso Experimental</a>
-  </div>
+    <button class="experimental">
+      <a class="text-lg text-gray-500 transition-all nav-link px-5 py-2.5"  href="/casoexperimental">Caso Experimental</a>
+    </button>
 
   <div class="flex items-center justify-center">
     <a href="/pso" class="text-lg font-bold p-8 transition-all duration-100 ease-in-out hover:font-bold nav-link">
@@ -351,18 +343,76 @@
           </form>
         </div>
       </div>
-      <div class="items-center">
+      <div class="items-center experimental">
         <a href="/descargar-pso">
           <button
-            class="text-black mt-5 ml-9 hover:bg-blue focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center bg-slate-400">
+            class="text-black font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5">
             Descargar XLSX
-            </button>
+          </button>
         </a>
       </div>
     </section>
   </div>
 
   <script src="{{ url_for('static', filename='js/pso.js') }}"></script>
+  <script>
+    (function () {
+      const nav = document.querySelector('.navbar-principal');
+      const btn = nav.querySelector('.nav-toggle');
+      const menu = nav.querySelector('#menu');
+
+      btn.addEventListener('click', () => {
+        const open = nav.classList.toggle('is-open');
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+
+      menu.addEventListener('click', (e) => {
+        if (e.target.closest('a')) {
+          nav.classList.remove('is-open');
+          btn.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!nav.contains(e.target)) {
+          nav.classList.remove('is-open');
+          btn.setAttribute('aria-expanded', 'false');
+        }
+      });
+      const SOON_SELECTOR = 'a.soon[aria-disabled="true"]';
+      const timeouts = new WeakMap();
+
+      function showSoonTip(el) {
+        el.classList.add('show-tip');
+        clearTimeout(timeouts.get(el));
+        const t = setTimeout(() => el.classList.remove('show-tip'), 1400);
+        timeouts.set(el, t);
+      }
+      menu.addEventListener('click', (e) => {
+        const a = e.target.closest('a');
+        if (!a) return;
+
+        if (a.matches(SOON_SELECTOR)) {
+          e.preventDefault();
+          e.stopPropagation();
+          showSoonTip(a);
+          return; // no cerrar el menú
+        }
+
+        // Cierre normal al navegar (solo si NO es soon)
+        nav.classList.remove('is-open');
+        btn.setAttribute('aria-expanded', 'false');
+      });
+
+      // Mejora: en touch, mostrar al tocar (sin click)
+      menu.addEventListener('touchstart', (e) => {
+        const a = e.target.closest(SOON_SELECTOR);
+        if (a) {
+          showSoonTip(a);
+        }
+      }, { passive: true });
+    })();
+  </script>
 </body>
 
 </html>

@@ -7,43 +7,37 @@
   <title>About</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/index.css">
+
 </head>
 
 <body>
-  <nav class="bg-light p-4">
-    <div class="container mx-auto flex justify-between items-center">
-      <a class="navbar-brand" href="/">Algorithms App</a>
-      <div class="flex">
-        <ul class="flex space-x-4">
-          <li class="nav-item active">
-            <a class="nav-link" href="/">Inicio</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/topsis">MCDM</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/pso">PSO</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/ba">BA</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/aco">ACO</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/comparacionGeneral">Comparación</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/acercade">Acerca De</a>
-          </li>
-        </ul>
-      </div>
-    </div>
+  <nav class="navbar-principal" role="navigation" aria-label="Navegación principal">
+    <a class="brand" href="/">Algorithms App</a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú">
+      <span class="hamburger" aria-hidden="true"></span>
+    </button>
+
+    <ul id="menu" class="menu">
+      <li><a href="/">Inicio</a></li>
+      <li><a href="/casoexperimental">Caso Experimental</a></li>
+      <li><a href="/topsis">MCDM</a></li>
+      <li><a href="/pso">PSO</a></li>
+      <li><a href="/ba">BA</a></li>
+      <li><a href="/aco">ACO</a></li>
+      <li><a href="#" class="soon" aria-disabled="true" data-tip="Próximamente">ABA</a></li>
+      <li><a href="/comparacion">Comparación</a></li>
+      <li><a href="/acercade">Acerca De</a></li>
+      <li><a href="#" class="soon" aria-disabled="true" data-tip="Próximamente">Publicaciones</a></li>
+    </ul>
   </nav>
+
   <h1 class="font-semibold text-4xl text-center mt-10">Acerca de Nosotros</h1>
   <div class="border-t-2 border-gray-300 my-8 text-center ">
-    <h3 class="text-xl text-justify mt-10 mx-auto ml-4 text-wrap" style="margin-right: 2rem;">El equipo de desarrollo se organiza considerando la taxonomía
-      CRediT (Contributor Roles Taxonomy), observandose dos grupos fundamentales: <br> uno enfocado a la investgación y el
+    <h3 class="text-xl text-justify mt-10 mx-auto ml-4 text-wrap" style="margin-right: 2rem;">El equipo de desarrollo se
+      organiza considerando la taxonomía
+      CRediT (Contributor Roles Taxonomy), observandose dos grupos fundamentales: <br> uno enfocado a la investgación y
+      el
       otro especializado en el desarrollo del
       Software(Frontend):
     </h3>
@@ -51,53 +45,65 @@
 
 
       <div class="ml-9 mt-5 text-wrap" style="margin-right: 3rem;">
-        <ol class="mt-5"><strong>1 Conceptualización:</strong> Ideas, formulación o evolución de los objetivos y metas generales de
+        <ol class="mt-5"><strong>1 Conceptualización:</strong> Ideas, formulación o evolución de los objetivos y metas
+          generales de
           la investigación.
         </ol>
-        <ol class="mt-5"><strong>2 Curación de datos:</strong> Actividades de gestión para anotar (producir metadatos), depurar datos
+        <ol class="mt-5"><strong>2 Curación de datos:</strong> Actividades de gestión para anotar (producir metadatos),
+          depurar datos
           y mantener los
           datos
           de la investigación (incluido el código de software, cuando sea necesario para interpretar los propios datos)
           para
           su uso inicial y su posterior reutilización.</ol>
-        <ol class="mt-5"><strong>3 Análisis formal:</strong> Aplicación de técnicas estadísticas, matemáticas, computacionales u
+        <ol class="mt-5"><strong>3 Análisis formal:</strong> Aplicación de técnicas estadísticas, matemáticas,
+          computacionales u
           otras técnicas formales
           para analizar o sintetizar datos de estudio.</ol>
-        <ol class="mt-5"><strong>4 Adquisición de fondos:</strong> Adquisición del apoyo financiero para el proyecto que conduce a
+        <ol class="mt-5"><strong>4 Adquisición de fondos:</strong> Adquisición del apoyo financiero para el proyecto que
+          conduce a
           esta publicación.
         </ol>
-        <ol class="mt-5"><strong>5 Investigación:</strong> Realización de una investigación y proceso de investigación, realizando
+        <ol class="mt-5"><strong>5 Investigación:</strong> Realización de una investigación y proceso de investigación,
+          realizando
           específicamente los
           Experiments, o la recolección de datos / evidencia.</ol>
-        <ol class="mt-5"><strong>6 Metodología:</strong> Desarrollo o diseño de la metodología y creación de modelos.</ol>
+        <ol class="mt-5"><strong>6 Metodología:</strong> Desarrollo o diseño de la metodología y creación de modelos.
+        </ol>
         <ol class="mt-5"><strong>7 Administración del proyecto:</strong> Responsabilidad de gestión y coordinación de la
           planificación de las
           actividades del investigación.</ol>
-        <ol class="mt-5"><strong>8 Adquisición de financiación y recursos:</strong> Suministro de materiales de estudio, herramientas
+        <ol class="mt-5"><strong>8 Adquisición de financiación y recursos:</strong> Suministro de materiales de estudio,
+          herramientas
           para el análisis
           y
           documentación, así como la Financiación para las publicaciones.</ol>
-        <ol class="mt-5"><strong>9 Supervisión:</strong> Responsabilidad de supervisión y liderazgo en la planificación, así como de
+        <ol class="mt-5"><strong>9 Supervisión:</strong> Responsabilidad de supervisión y liderazgo en la planificación,
+          así como de
           la realización de
           actividades de investigación, lo que incluye la tutoría externa al equipo central.</ol>
-        <ol class="mt-5"><strong>10 Validación:</strong> Verificación, ya sea como parte de la actividad o por separado, de la
+        <ol class="mt-5"><strong>10 Validación:</strong> Verificación, ya sea como parte de la actividad o por separado,
+          de la
           replicabilidad /
           reproducción general de los resultados / Experiments u otros productos de la investigación.</ol>
         <ol class="mt-5"><strong>11 Visualización:</strong> Preparación, creación o presentación del trabajo publicado,
           específicamente la
           visualización
           / presentación de datos.</ol>
-        <ol class="mt-5"><strong>12 Redacción (borrador original):</strong> Preparación, creación o presentación del trabajo
+        <ol class="mt-5"><strong>12 Redacción (borrador original):</strong> Preparación, creación o presentación del
+          trabajo
           publicado,
           específicamente
           la redacción del borrador inicial (se incluye la traducción sustantiva).</ol>
-        <ol class="mt-5"><strong>13 Redacción (revisión y edición):</strong> Preparación, creación o presentación del trabajo
+        <ol class="mt-5"><strong>13 Redacción (revisión y edición):</strong> Preparación, creación o presentación del
+          trabajo
           publicado por los
           miembros
           del grupo de investigación original, específicamente revisión crítica, comentario o revisión - se deben
           incluir
           las etapas previas o posteriores a la publicación.</ol>
-        <ol class="mt-5"><strong>14 Software:</strong> Programación, desarrollo de software, diseño de programas informáticos,
+        <ol class="mt-5"><strong>14 Software:</strong> Programación, desarrollo de software, diseño de programas
+          informáticos,
           implementación del
           código
           informático y de los algoritmos de apoyo, pruebas de los componentes de código existentes. Este se divide en
@@ -135,8 +141,7 @@
           class="text-gray-600 hover:text-gray-900 text-3xl">
           <i class="fab fa-google"></i>
         </a>
-        <a href="https://orcid.org/0000-0002-1326-908X"
-          class="text-gray-600 hover:text-gray-900 text-3xl">
+        <a href="https://orcid.org/0000-0002-1326-908X" class="text-gray-600 hover:text-gray-900 text-3xl">
           <i class="fab fa-orcid"></i>
         </a>
       </div>
@@ -163,8 +168,7 @@
           class="text-gray-600 hover:text-gray-900 text-3xl">
           <i class="fab fa-google"></i>
         </a>
-        <a href="https://orcid.org/0000-0003-2541-4595"
-          class="text-gray-600 hover:text-gray-900 text-3xl">
+        <a href="https://orcid.org/0000-0003-2541-4595" class="text-gray-600 hover:text-gray-900 text-3xl">
           <i class="fab fa-orcid"></i>
         </a>
       </div>
@@ -248,7 +252,8 @@
         <!-- Iconos de redes sociales -->
         <a href="https://www.linkedin.com/in/alfonso-jos%C3%A9-barroso-barajas-9030541aa"
           class="text-gray-600 hover:text-gray-900 text-3xl"><i class="fab fa-linkedin"></i></a>
-        <a href="https://github.com/alfonsobarrosobarajas/" class="text-gray-600 hover:text-gray-900 text-3xl"><i class="fab fa-github"></i></a>
+        <a href="https://github.com/alfonsobarrosobarajas/" class="text-gray-600 hover:text-gray-900 text-3xl"><i
+            class="fab fa-github"></i></a>
       </div>
     </div>
     <div class="bg-white shadow-md rounded-lg p-10 flex flex-col items-center justify-center">
@@ -300,6 +305,64 @@
       </div>
     </div>
   </div>
+  <script>
+    (function () {
+      const nav = document.querySelector('.navbar-principal');
+      const btn = nav.querySelector('.nav-toggle');
+      const menu = nav.querySelector('#menu');
+
+      btn.addEventListener('click', () => {
+        const open = nav.classList.toggle('is-open');
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+
+      menu.addEventListener('click', (e) => {
+        if (e.target.closest('a')) {
+          nav.classList.remove('is-open');
+          btn.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!nav.contains(e.target)) {
+          nav.classList.remove('is-open');
+          btn.setAttribute('aria-expanded', 'false');
+        }
+      });
+      const SOON_SELECTOR = 'a.soon[aria-disabled="true"]';
+      const timeouts = new WeakMap();
+
+      function showSoonTip(el) {
+        el.classList.add('show-tip');
+        clearTimeout(timeouts.get(el));
+        const t = setTimeout(() => el.classList.remove('show-tip'), 1400);
+        timeouts.set(el, t);
+      }
+      menu.addEventListener('click', (e) => {
+        const a = e.target.closest('a');
+        if (!a) return;
+
+        if (a.matches(SOON_SELECTOR)) {
+          e.preventDefault();
+          e.stopPropagation();
+          showSoonTip(a);
+          return; // no cerrar el menú
+        }
+
+        // Cierre normal al navegar (solo si NO es soon)
+        nav.classList.remove('is-open');
+        btn.setAttribute('aria-expanded', 'false');
+      });
+
+      // Mejora: en touch, mostrar al tocar (sin click)
+      menu.addEventListener('touchstart', (e) => {
+        const a = e.target.closest(SOON_SELECTOR);
+        if (a) {
+          showSoonTip(a);
+        }
+      }, { passive: true });
+    })();
+  </script>
 </body>
 
 </html>

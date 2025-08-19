@@ -1,8 +1,316 @@
-.wellcome{
-    all:unset;
-    padding: 15px;
-    border-radius: 12px;
-    border: 2px solid transparend;
+.navbar-principal {
+    display: flex;
+    align-items: center;
+    gap: var(--gap);
+    padding: 12px 16px;
+    background: var(--nav-bg);
+    color: var(--nav-fg);
+    border-radius: var(--nav-radius);
+    position: relative;
+
+    border-radius: 8px;
+    border: 2px solid transparent;
     box-shadow: 0px 2px 2px 2px rgba(0, 0, 0, 0.088);
-    transition:boder;
+    transition: border;
+    list-style-type: none;
+    margin: 0;
+}
+
+/* Marca + bienvenida */
+.brand {
+    font-size: x-large;
+    font-weight: 700;
+    text-decoration: none;
+    color: var(--nav-fg);
+    white-space: nowrap;
+}
+
+.brand:hover {
+    background: rgba(0, 0, 0, .088);
+
+}
+
+.bienvenida {
+    margin: 0;
+    margin-left: 8px;
+    font-weight: 500;
+    color: #374151;
+    /* gris 700 */
+}
+
+/* Botón hamburguesa (visible en móvil) */
+.nav-toggle {
+    margin-left: auto;
+    border: none;
+    background: transparent;
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    border-radius: 10px;
+}
+
+.nav-toggle:focus-visible {
+    outline: var(--focus);
+}
+
+.hamburger {
+    display: inline-block;
+    width: 22px;
+    height: 2px;
+    background: currentColor;
+    position: relative;
+    transition: transform .25s ease;
+}
+
+.hamburger::before,
+.hamburger::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 22px;
+    height: 2px;
+    background: currentColor;
+    transition: transform .25s ease, top .25s ease, opacity .25s ease;
+}
+
+.hamburger::before {
+    top: -7px;
+}
+
+.hamburger::after {
+    top: 7px;
+}
+
+/* Menú (móvil: oculto por defecto) */
+.menu {
+    background: #fff;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    /*background: var(--nav-bg);*/
+    border-radius: 0 0 var(--nav-radius) var(--nav-radius);
+    box-shadow: var(--nav-shadow);
+    transform: translateY(-8px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease, transform .2s ease;
+
+}
+
+.menu li {
+    border-top: 1px solid rgba(0, 0, 0, .06);
+}
+
+.menu li:first-child {
+    border-top: none;
+}
+
+.menu a {
+    display: block;
+    padding: 10px 16px;
+    text-decoration: none;
+    color: var(--nav-fg);
+    font-weight: 500;
+}
+
+.menu a:hover {
+    background: rgba(0, 0, 0, .088);
+}
+
+.menu a:focus-visible {
+    outline: var(--focus);
+    outline-offset: -4px;
+}
+
+/* Estado abierto (se aplica con .is-open en .navbar-principal) */
+.navbar-principal.is-open .menu {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.navbar-principal.is-open .hamburger {
+    transform: rotate(45deg);
+}
+
+.navbar-principal.is-open .hamburger::before {
+    top: 0;
+    transform: rotate(90deg);
+}
+
+.navbar-principal.is-open .hamburger::after {
+    top: 0;
+    opacity: 0;
+}
+
+/* >=768px: menú horizontal, sin hamburguesa */
+@media (min-width: 890px) {
+    .navbar-principal {
+        padding: 14px 18px;
+    }
+
+    .nav-toggle {
+        display: none;
+    }
+
+    .menu {
+        position: static;
+        display: flex;
+        gap: var(--gap);
+        background: transparent;
+        box-shadow: none;
+        transform: none;
+        opacity: 1;
+        pointer-events: auto;
+        border-radius: 0;
+        margin-left: auto;
+
+    }
+
+    .menu li {
+        border: 0;
+    }
+
+    .menu a {
+        padding: 8px 10px;
+        border-radius: 8px;
+    }
+
+    .menu a:hover {
+        background: rgba(0, 0, 0, .06);
+    }
+
+    /* empuja el menú a la derecha, mantén "bienvenida" cerca de la marca */
+    .bienvenida {
+        margin-right: auto;
+    }
+}
+
+/* Respeta usuarios con menos animaciones */
+@media (prefers-reduced-motion: reduce) {
+
+    .menu,
+    .hamburger,
+    .hamburger::before,
+    .hamburger::after {
+        transition: none;
+    }
+}
+
+/* Estilo de ítems "deshabilitados" pero interactuables para tooltip */
+.menu a.soon[aria-disabled="true"] {
+    opacity: .55;
+    cursor: not-allowed;
+    position: relative;
+    /* para posicionar el tooltip */
+    user-select: none;
+    pointer-events: auto;
+    /* importante para que reciba hover/click */
+}
+
+/* Ícono/indicador opcional */
+.menu a.soon[aria-disabled="true"]::before {
+    content: "🔒 ";
+    opacity: .9;
+}
+
+/* Tooltip base (usa el contenido de data-tip) */
+.menu a.soon[aria-disabled="true"]::after {
+    content: attr(data-tip);
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 8px);
+    transform: translateX(-50%) translateY(8px);
+    background: #111;
+    color: #fff;
+    font-size: 12px;
+    line-height: 1;
+    padding: 6px 8px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .2);
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity .18s ease, transform .18s ease, visibility .18s;
+    z-index: 20;
+}
+
+
+.menu a.soon[aria-disabled="true"] .tip {
+    display: none;
+}
+
+/* Triángulo usando un pseudo extra */
+.menu a.soon[aria-disabled="true"]::marker {
+    content: "";
+}
+
+/* Tooltip visible en hover/focus o cuando JS añade .show-tip */
+.menu a.soon[aria-disabled="true"]:hover::after,
+.menu a.soon[aria-disabled="true"]:focus-visible::after,
+.menu a.soon[aria-disabled="true"].show-tip::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(75px);
+}
+
+/* Triangulito (pseudo-elemento extra) */
+.menu a.soon[aria-disabled="true"]::selection {
+    background: none;
+}
+
+/* Usamos un pseudo adicional :focus para el triángulo con ::after+box-shadow */
+.menu a.soon[aria-disabled="true"]::after {
+    /* agregamos la “punta” con sombra: */
+    box-shadow:
+        0 0 0 0 #111,
+        0 -6px 0 -4px #111;
+    /* truco para simular triángulo pequeño arriba */
+}
+
+.experimental a{
+    left: 40px;
+    position: relative;
+    display: inline-block;
+    border-left: solid;
+    border-right: solid;
+}
+
+.experimental a::before,
+.experimental a::after{
+    content: "";
+    position:absolute;
+    height: 2px;
+    width: 0;
+    background-color: #374151;
+    transition: .4s;
+}
+
+.experimental a::before{
+    top: 0;
+    left: 0;
+}
+
+.experimental a::after{
+    bottom: 0;
+    right: 0;
+}
+
+
+
+.experimental a:hover:before,
+.experimental a:hover:after{
+    width: 100%;
+}
+
+.buttons-experiments{
+     display: flex;
+    justify-content: space-evenly;
 }

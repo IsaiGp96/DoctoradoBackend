@@ -25,53 +25,32 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="/">Algorithms App</a>
-        <div id="bienvenida" class="wellcome">
-            <p>
-                Bienvenido {{ usuario }}
-            </p>
-            
-        </select>
-    </div>
-    <a href="/logout"><button  type="button" class="wellcome">Salir</button></a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
+    <nav class="navbar-principal" role="navigation" aria-label="Navegación principal">
+        <a class="brand" href="/">Algorithms App</a>
+
+        <p id="bienvenida" class="bienvenida">Bienvenido {{ usuario }}</p>
+
+        <!-- Toggle accesible -->
+        <button class="nav-toggle" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú">
+            <span class="hamburger" aria-hidden="true"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto"> <!-- Align items to the right -->
-                <li class="nav-item active">
-                    <a class="nav-link" href="/">Inicio</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/casoexperimental">Caso Experimental</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/topsis">MCDM</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/pso">PSO</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/ba">BA</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/aco">ACO</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/comparacion">Comparación</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/acercade">Acerca De</a>
-                </li>
-            </ul>
-        </div>
+
+        <ul id="menu" class="menu">
+            <li><a href="/">Inicio</a></li>
+            <li><a href="/casoexperimental">Caso Experimental</a></li>
+            <li><a href="/topsis">MCDM</a></li>
+            <li><a href="/pso">PSO</a></li>
+            <li><a href="/ba">BA</a></li>
+            <li><a href="/aco">ACO</a></li>
+            <li><a href="#" class="soon" aria-disabled="true" data-tip="Próximamente">ABA</a></li>
+            <li><a href="/comparacion">Comparación</a></li>
+            <li><a href="/acercade">Acerca De</a></li>
+            <li><a href="#" class="soon" aria-disabled="true" data-tip="Próximamente">Publicaciones</a></li>
+        </ul>
     </nav>
 
     <section class="bg-amber-100">
         <div class="h-[10rem] bg-gray-100 bg-amber-200">
-
             <div class="container mx-auto px-6 py-10">
                 <h1 class="text-center text-3xl font-semibold capitalize text-gray-800 dark:text-white lg:text-4xl">Toma
                     de decisiones avanzadas con inteligencia de enjambre en un ambiente multicriterio</h1>
@@ -125,7 +104,7 @@
                             que se utilizan en la inteligencia de enjambre incluyen:
                         </p>
                         <p class="text-justify text-gray-500">
-                        <div class="mt-10" style="text-align: left;">
+                        <div class="mt-10">
                             <li><strong>Optimización de Enjambre de Partículas (PSO):</strong></li>
                             <br />
                             <p class="text-justify">El algoritmo de Optimización por Enjambre de Partículas (PSO, por
@@ -140,7 +119,7 @@
                         </div>
                         </p>
                         <p class="text-justify text-gray-500">
-                        <div class="mt-10" style="text-align: left;">
+                        <div class="mt-10">
                             <li><strong>Algoritmo de Murciélago (BA):</strong></li>
                             <br />
                             <p class="text-justify">
@@ -157,7 +136,7 @@
 
                         </p>
                         <p class="text-justify text-gray-500">
-                        <div class="mt-10" style="text-align: left;">
+                        <div class="mt-10">
                             <li><strong>Algoritmos de Colonias de Hormigas (ACO):</strong></li>
                             <br />
                             <p class="text-justify">
@@ -211,6 +190,65 @@
     </div>
     </div>
     </section>
+    <script>
+        (function () {
+            const nav = document.querySelector('.navbar-principal');
+            const btn = nav.querySelector('.nav-toggle');
+            const menu = nav.querySelector('#menu');
+
+            btn.addEventListener('click', () => {
+                const open = nav.classList.toggle('is-open');
+                btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+            });
+
+            menu.addEventListener('click', (e) => {
+                if (e.target.closest('a')) {
+                    nav.classList.remove('is-open');
+                    btn.setAttribute('aria-expanded', 'false');
+                }
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!nav.contains(e.target)) {
+                    nav.classList.remove('is-open');
+                    btn.setAttribute('aria-expanded', 'false');
+                }
+            });
+            const SOON_SELECTOR = 'a.soon[aria-disabled="true"]';
+            const timeouts = new WeakMap();
+
+            function showSoonTip(el) {
+                el.classList.add('show-tip');
+                clearTimeout(timeouts.get(el));
+                const t = setTimeout(() => el.classList.remove('show-tip'), 1400);
+                timeouts.set(el, t);
+            }
+            menu.addEventListener('click', (e) => {
+                const a = e.target.closest('a');
+                if (!a) return;
+
+                if (a.matches(SOON_SELECTOR)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    showSoonTip(a);
+                    return; // no cerrar el menú
+                }
+
+                // Cierre normal al navegar (solo si NO es soon)
+                nav.classList.remove('is-open');
+                btn.setAttribute('aria-expanded', 'false');
+            });
+
+            // Mejora: en touch, mostrar al tocar (sin click)
+            menu.addEventListener('touchstart', (e) => {
+                const a = e.target.closest(SOON_SELECTOR);
+                if (a) {
+                    showSoonTip(a);
+                }
+            }, { passive: true });
+        })();
+    </script>
+
 </body>
 
 </html>

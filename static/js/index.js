@@ -32,3 +32,31 @@
         if (e.key === 'Escape') closeMenu();
     });
 })();
+
+(function () {
+    const nav = document.querySelector('.navbar-principal');
+    const btn = nav.querySelector('.nav-toggle');
+    const menu = nav.querySelector('#menu');
+
+    // Toggle
+    btn.addEventListener('click', () => {
+        const open = nav.classList.toggle('is-open');
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+
+    // Cierra al navegar (mejor UX)
+    menu.addEventListener('click', (e) => {
+        if (e.target.closest('a')) {
+            nav.classList.remove('is-open');
+            btn.setAttribute('aria-expanded', 'false');
+        }
+    });
+
+    // Opcional: cierra si se hace click fuera
+    document.addEventListener('click', (e) => {
+        if (!nav.contains(e.target)) {
+            nav.classList.remove('is-open');
+            btn.setAttribute('aria-expanded', 'false');
+        }
+    });
+})();

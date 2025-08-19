@@ -488,7 +488,7 @@ async def ejecutar_pso(w, wwi, c1, c2, T, r1, r2):
         now = datetime.datetime.now()
         hoy = now.strftime('%d/%m/%Y %H:%M:%S')
 
-    with open('pso.csv', 'a', newline='') as csvfile:
+    with open('Experiments/_PSO.csv', 'a', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
 
         #Escribir la fecha y hora actual en primera linea de ejecucion
