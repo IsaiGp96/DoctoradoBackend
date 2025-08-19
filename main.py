@@ -57,7 +57,7 @@ except Exception as e:
     print('ERROR: No puedo escribir en la carpeta db/:', e)
 
 # ----------- CONFIGURACIÓN DE FLASK Y SQLALCHEMY -----------
-app = Flask(__name__)
+app = Flask(__name__, template_folder = 'static/templates')
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_PATH}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = '563cebb3aceb49e0a6c79ded5c717235'
@@ -1727,9 +1727,9 @@ def signup():
             db.session.add(new_user)
             db.session.commit()
             msg = 'Cuenta creada. Ya puedes iniciar sesión.'
-            return redirect(url_for('login'))
+            return redirect(url_for('/login'))
 
-    return render_template('signup.html', msg=msg)
+    return render_template(' /signup.html', msg=msg)
 
 if '__main__' == __name__:
     app.run(port=5000, debug=True)
