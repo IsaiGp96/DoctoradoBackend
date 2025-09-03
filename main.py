@@ -4,17 +4,23 @@ import hashlib
 import re
 from werkzeug.security import generate_password_hash
 from array import array
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from functools import wraps
-from Models.models import db, init_db
-from Models.auth import auth_bp, login_required, roles_required
-from Models.models import User
+from werkzeug.security import generate_password_hash
+from werkzeug.utils import secure_filename
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
+from pathlib import Path
+from src.models.models import db, init_db
+from src.models.models import User
+from src.api.auth import auth_bp, login_required, roles_required
+from src.api.articles import bp as articles_api
 
 #import jwt
 #import mysql.connector
 import numpy as np
 from flask import (Flask, jsonify, make_response, render_template, request,
-                   send_from_directory, session, redirect, url_for)
+                   send_from_directory, session, redirect, url_for, render_template, request, redirect, url_for, current_app)
 #from flask_sqlalchemy import SQLAlchemy
 from numpy import ndarray
 from openpyxl import load_workbook
@@ -39,11 +45,11 @@ from Layout.topsispso import ejecutar_topsispso
 # ----------- BASE DE DATOS: CONFIGURACIÓN ROBUSTA -----------
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 DB_DIR = os.path.join(BASE_DIR, 'db')
-DB_PATH = os.path.join(DB_DIR, 'users.db')
+DB_PATH = os.path.join(DB_DIR, 'swarm.db')
 # print('\n=== DEBUG DE INICIALIZACIÓN DE BASE DE DATOS ===')
 # print('Directorio base:', BASE_DIR)
 # print('Directorio db:', DB_DIR)
-# print('Ruta absoluta de users.db:', DB_PATH)
+# print('Ruta absoluta de swarm.db:', DB_PATH)
 
 os.makedirs(DB_DIR, exist_ok=True)
 
@@ -57,15 +63,20 @@ except Exception as e:
     print('ERROR: No puedo escribir en la carpeta db/:', e)
 
 # ----------- CONFIGURACIÓN DE FLASK Y SQLALCHEMY -----------
-app = Flask(__name__)
+app = Flask(__name__, template_folder = 'static/templates')
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_PATH}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = '563cebb3aceb49e0a6c79ded5c717235'
+user_root = 'Experiments'
+today_str = date.today().isoformat()
 
 db.init_app(app)
 init_db(app)
 
 app.register_blueprint(auth_bp)
+app.register_blueprint(articles_api)
+
+print("DB articles:", id(db))
 
 #-------------------------------------------------------------------------------------------------------------------
 @app.route('/acercade')
@@ -104,6 +115,11 @@ def pso():
 @app.route('/pso', methods=['POST'])
 @roles_required('user','admin', 'superadmin')
 def calcular_pso():
+    uid = session.get('user_id')  # <-- string key, NO lista
+    if uid:
+        user = db.session.get(User, uid)   # SQLAlchemy 2.x
+        if user:
+            usuario = user.username
     try:
         # Obtén los datos del formulario
         w_input = [request.form.get(f'w[{i}]', '') for i in range(5)]
@@ -119,7 +135,7 @@ def calcular_pso():
         r2 = [float(num.strip()) for num in r2_input.split(',')]
 
         # Llama a la función de PSO en pso.py
-        datosPso = asyncio.run(ejecutar_pso(w, wwi, c1, c2, T, r1, r2))
+        datosPso = asyncio.run(ejecutar_pso(w, wwi, c1, c2, T, r1, r2, usuario))
         print("Resultados de la ejecución:", datosPso)
 
         # Obtén los resultados específicos que deseas mostrar
@@ -1571,124 +1587,122 @@ def index():
 @app.route('/')
 @roles_required('user','admin', 'superadmin')
 def home():
-    # if not session.get('logged_in'):
-    #     return render_template('login.html')
-    # else:
-    user = None
-    if 'user_id' in session:
-        user = User.query.get(session['user_id'])
-        return render_template('index.html', usuario=user.username if user else 'Invitado')    
-    #return render_template('index.html')
+    uid = session.get('user_id')
+    if uid:
+        user = db.session.get(User, uid)
+        if user:
+            usuario = user.username
+    return render_template('index.html', usuario=usuario)
 
 @app.route('/descargar-pso')
 @roles_required('user','admin', 'superadmin')
 def descargar_excel_pso():
-    directorio = 'Experiments'  
+    directorio = 'Experiments/static'  
     filename = 'PSO.xlsx'
     return send_from_directory(directorio, filename, as_attachment=True)
 
 @app.route('/descargar-dapso')
 @roles_required('user','admin', 'superadmin')
 def descargar_excel_dapso():
-    directorio = 'Experiments'  
+    directorio = 'Experiments/static'  
     filename = 'DAPSO_1.xlsx'
     return send_from_directory(directorio, filename, as_attachment=True)
 
 @app.route('/descargar-moorapso')
 @roles_required('user','admin', 'superadmin')
 def descargar_excel_moorapso():
-    directorio = 'Experiments'  
+    directorio = 'Experiments/static'  
     filename = 'MOORAPSO_1.xlsx'
     return send_from_directory(directorio, filename, as_attachment=True)
 
 @app.route('/descargar-topsispso')
 @roles_required('user','admin', 'superadmin')
 def descargar_excel_topsispso():
-    directorio = 'Experiments'  
+    directorio = 'Experiments/static'  
     filename = 'TOPSISPSO_1.xlsx'
     return send_from_directory(directorio, filename, as_attachment=True)
 
 @app.route('/descargar-ba')
 @roles_required('user','admin', 'superadmin')
 def descargar_excel_ba():
-    directorio = 'Experiments'  
+    directorio = 'Experiments/static'  
     filename = 'BA.xlsx'
     return send_from_directory(directorio, filename, as_attachment=True)
 
 @app.route('/descargar-daba')
 @roles_required('user','admin', 'superadmin')
 def descargar_excel_daba():
-    directorio = 'Experiments'  
+    directorio = 'Experiments/static'  
     filename = 'DABA_1.xlsx'
     return send_from_directory(directorio, filename, as_attachment=True)
 
 @app.route('/descargar-mooraba')
 @roles_required('user','admin', 'superadmin')
 def descargar_excel_mooraba():
-    directorio = 'Experiments'  
+    directorio = 'Experiments/static'  
     filename = 'MOORABA_1.xlsx'
     return send_from_directory(directorio, filename, as_attachment=True)
 
 @app.route('/descargar-topsisba')
 @roles_required('user','admin', 'superadmin')
 def descargar_excel_topsisba():
-    directorio = 'Experiments'  
+    directorio = 'Experiments/static'  
     filename = 'TOPSISBA_1.xlsx'
     return send_from_directory(directorio, filename, as_attachment=True)
 
 @app.route('/descargar-aco')
 @roles_required('user','admin', 'superadmin')
 def descargar_excel_aco():
-    directorio = 'Experiments'  
+    directorio = 'Experiments/static'  
     filename = 'ACO_1.xlsx'
     return send_from_directory(directorio, filename, as_attachment=True)
 #Aquí hubo un error
 @app.route('/descargar-daaco')
 @roles_required('user','admin', 'superadmin')
 def descargar_excel_daaco():
-    directorio = 'Experiments'  
+    directorio = 'Experiments/static'  
     filename = 'DAACO_1.xlsx'
     return send_from_directory(directorio, filename, as_attachment=True)
 
 @app.route('/descargar-mooraaco')
 @roles_required('user','admin', 'superadmin')
 def descargar_excel_mooraaco():
-    directorio = 'Experiments'  
+    directorio = 'Experiments/static'  
     filename = 'MOORAACO_1.xlsx'
     return send_from_directory(directorio, filename, as_attachment=True)
 
 @app.route('/descargar-topsisaco')
 @roles_required('user','admin', 'superadmin')
 def descargar_excel_topsisaco():
-    directorio = 'Experiments'  
+    directorio = 'Experiments/static'  
     filename = 'TOPSISACO_1.xlsx'
     return send_from_directory(directorio, filename, as_attachment=True)
 
 @app.route('/descargar-topsis')
 @roles_required('user','admin', 'superadmin')
 def descargar_excel_topsis():
-    directorio = 'Experiments'  
+    directorio = 'Experiments/static'  
     filename = 'TOPSIS_1.xlsx'
     return send_from_directory(directorio, filename, as_attachment=True)
 
 @app.route('/descargar-moorav')
 @roles_required('user','admin', 'superadmin')
 def descargar_excel_moorav():
-    directorio = 'Experiments'  
+    directorio = 'Experiments/static'  
     filename = 'MOORA_1.xlsx'
     return send_from_directory(directorio, filename, as_attachment=True)
 
 @app.route('/descargar-da')
 @roles_required('user','admin', 'superadmin')
 def descargar_excel_da():
-    directorio = 'Experiments'  
+    directorio = 'Experiments/static'  
     filename = 'DA_1.xlsx'
     return send_from_directory(directorio, filename, as_attachment=True)
 
 @app.route('/descargar-zip')
 @roles_required('user','admin', 'superadmin')
 def descargar_zip():
-    directorio = ''  
+    directorio = 'Experiments/static'  
     filename = 'Compara.zip'
     return send_from_directory(directorio, filename, as_attachment=True)
 
@@ -1696,40 +1710,90 @@ def descargar_zip():
 @app.route('/descargar-parametros')
 @roles_required('user','admin', 'superadmin')
 def descargar_parametros():
-    directorio = ''  
+    directorio = 'Experiments/static'  
     filename = 'entradas-Programa.xlsx'
     return send_from_directory(directorio, filename, as_attachment=True)
 
-@app.route('/login')
-def login():
-    
-    return render_template('login.html')
 
 @app.route('/signup', methods=['GET','POST'])
 def signup():
     msg = ''
     if request.method == 'POST':
-        username = request.form['username'].strip()
-        password = request.form['password'].strip()
-        email = request.form.get('email', '').strip()
+        username = (request.form.get('username') or '').strip()
+        password = (request.form.get('password') or '').strip()
 
-        # Validación: usuario único
-        if User.query.filter_by(username=username).first():
-            msg = 'El usuario ya existe.'
-        elif len(password) < 4:
+        # Validaciones mínimas
+        if not username:
+            msg = 'El nombre de usuario es obligatorio.'
+            return render_template('signup.html', msg=msg)
+        if len(password) < 4:  # considera subirlo a 8+
             msg = 'La contraseña es demasiado corta.'
-        else:
-            new_user = User(
-                username=username,
-                password_hash=generate_password_hash(password),
-                role='user'
-            )
+            return render_template('signup.html', msg=msg)
+
+        # Usuario único (SQLAlchemy 2.x idiomático)
+        stmt = select(User).where(User.username == username)
+        existing = db.session.execute(stmt).scalar_one_or_none()
+        if existing:
+            msg = 'El usuario ya existe.'
+            return render_template('signup.html', msg=msg)
+
+        # Crear usuario
+        new_user = User(
+            username=username,
+            password_hash=generate_password_hash(password),
+            role='user'
+        )
+
+        try:
             db.session.add(new_user)
-            db.session.commit()
-            msg = 'Cuenta creada. Ya puedes iniciar sesión.'
-            return redirect(url_for('login'))
+            db.session.commit()  # ahora new_user.id existe
+
+            # Crear carpeta del usuario: Experiments/<id>-<username-sanitizado>/
+            base = Path(current_app.config.get('EXPERIMENTS_ROOT', 'Experiments'))
+            dirname = f"{new_user.id}-{secure_filename(new_user.username or 'user')}"
+            user_dir = base / dirname
+            user_dir.mkdir(parents=True, exist_ok=True)
+
+            # Redirigir a login (ajusta el endpoint si fuera diferente)
+            return redirect(url_for('auth.login'))
+
+        except IntegrityError:
+            db.session.rollback()
+            msg = 'No se pudo crear la cuenta (conflicto de datos).'
+        except OSError as e:
+            # Si falla la creación de carpeta, puedes optar por seguir o revertir
+            msg = f'Cuenta creada, pero no se pudo crear la carpeta del usuario: {e.strerror}'
+            # Si prefieres revertir todo:
+            # db.session.delete(new_user); db.session.commit()
+            # msg = 'Error creando la carpeta del usuario.'
 
     return render_template('signup.html', msg=msg)
 
+@app.route('/articulos')
+@roles_required('admin', 'superadmin')
+def articulos():
+    directorio = 'Experiments/static'  
+    filename = ''
+    return render_template('articulos.html')
+    
+    #return send_from_directory(directorio, filename, as_attachment=True)
+@app.route('/publicaciones')
+@roles_required('user','admin', 'superadmin')
+def publicacion():
+    directorio = 'Experiments/static'  
+    filename = ''
+    return render_template('publicaciones.html')
+
+
+# @app.route('/descargar-ultimo')
+# @roles_required('user','admin', 'superadmin')
+# def descargar_ultimo():
+#     prefix = request.args.get('prefix')  # opcional: e.g. ?prefix=pso
+#     lastf = get_last_file(prefix)
+#     if not lastf:
+#         return abort(404, description="No hay archivos disponibles aún.")
+#     # send_from_directory necesita dir y nombre
+#     return send_from_directory(lastf.parent, lastf.name, as_attachment=True)
+ 
 if '__main__' == __name__:
     app.run(port=5000, debug=True)

@@ -17,15 +17,16 @@ import xlsxwriter
 from cProfile import label
 from matplotlib.transforms import Bbox
 import matplotlib.pyplot as plt
-import datetime
+from datetime import date, datetime
 import asyncio
 
 
 
-async def ejecutar_pso(w, wwi, c1, c2, T, r1, r2):
-    
-    
-    hora_inicio = datetime.datetime.now()
+async def ejecutar_pso(w, wwi, c1, c2, T, r1, r2, username: str):
+    ts = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')  # p.ej. 2025-08-27_14-35-22
+    today_str = date.today().isoformat()  # 'YYYY-MM-DD'
+
+    hora_inicio = datetime.now()
     fecha_inicio = hora_inicio.date()
     print()
     print("-------------------------------------------")
@@ -423,7 +424,7 @@ async def ejecutar_pso(w, wwi, c1, c2, T, r1, r2):
         print("CP(",t+1,") =")
         print(CP.iloc[seg:seg+a,:],"\n")
         print("pbest(",t+1,") =")
-        print(PBEST.iloc[seg:seg+a],"\n")
+        print(PBEST.iloc[seg:seg+a],"\n,")
         print("GBF =", GBF[t],"\n")
         print("gbest(",t+1,") =")
         print(GBP.iloc[(len(GBP)-n):len(GBP)],"\n")
@@ -454,7 +455,7 @@ async def ejecutar_pso(w, wwi, c1, c2, T, r1, r2):
     print("  ---------------------------------")
 
     
-    dI={"w(inertia)":wwi, "c1":c1, "c2":c2, "No. de iteraciones":T, "Función Objetivo": ['IS(a_{1}^i, a_{2}^i, ...a_{m}^i) = PI_{j=1}^m(a^i / S_{l})^w_{j}'],"Función_objetivoPSO:":['Min f(x_{1},x_ {2}) =(x_{1}^{2} + (x_{2}\)^{2}")'], "Rango_Min":rangoMin,"Rango_Max":rangoMax}
+    dI={"w(inertia)":wwi, "c1":c1, "c2":c2, "No. de iteraciones":T, "Función Objetivo": ["IS(a_{1}^i, a_{2}^i, ...a_{m}^i) = PI_{j=1}^m(a^i / S_{l})^w_{j}"],"Función_objetivoPSO:":["Min f(x_{1},x_ {2}) =(x_{1}^{2} + (x_{2})^{2})"], "Rango_Min":rangoMin,"Rango_Max":rangoMax}
     dataI = pd.DataFrame(dI)
     dataGBF = pd.DataFrame(GBF)
     dataGBP = pd.DataFrame(GBP)
@@ -466,11 +467,11 @@ async def ejecutar_pso(w, wwi, c1, c2, T, r1, r2):
     #alternativas = Resultados
     #alternativas = alternativas.sort(reverse=True)
     alternativas = Resultados[-10:]
-    hora_fin = datetime.datetime.now()
+    hora_fin = datetime.now()
 
     
 
-    with pd.ExcelWriter('Experiments/PSO.xlsx', engine='xlsxwriter') as writer:
+    with pd.ExcelWriter(f'Experiments/{username}/{today_str}/_PSO-{ts}.xlsx', engine='xlsxwriter') as writer:
         dataI.to_excel(writer, sheet_name='Iniciales')
         datar1.to_excel(writer, sheet_name='r1')
         datar2.to_excel(writer, sheet_name='r2')
@@ -485,10 +486,10 @@ async def ejecutar_pso(w, wwi, c1, c2, T, r1, r2):
         dataResult.to_excel(writer, sheet_name='Resultados')
 
     
-        now = datetime.datetime.now()
+        now = datetime.now()
         hoy = now.strftime('%d/%m/%Y %H:%M:%S')
 
-    with open('pso.csv', 'a', newline='') as csvfile:
+    with open(f'Experiments/{username}/{today_str}/_PSO-{ts}.csv', 'a', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
 
         #Escribir la fecha y hora actual en primera linea de ejecucion
