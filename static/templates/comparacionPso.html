@@ -18,17 +18,40 @@
       <span class="hamburger" aria-hidden="true"></span>
     </button>
 
-        <ul id="menu" class="menu">
+            {% set role = session.get('role') %}
+<ul id="menu" class="menu">
       <li><a href="/">Inicio</a></li>
       <li><a href="/casoexperimental">Caso Experimental</a></li>
       <li><a href="/topsis">MCDM</a></li>
       <li><a href="/pso">PSO</a></li>
       <li><a href="/ba">BA</a></li>
       <li><a href="/aco">ACO</a></li>
-      <li><a href="#" class="soon" aria-disabled="true" data-tip="Próximamente">ABA</a></li>
-      <li><a href="/comparacion">Comparación</a></li>
+            <!-- <li><a href="#" class="soon" aria-disabled="true" hidden="true" data-tip="Próximamente">ABA</a></li> -->
+            <li><a href="/comparacionGeneral">Comparación</a></li>
       <li><a href="/acercade">Acerca De</a></li>
-      <li><a href="#" class="soon" aria-disabled="true" data-tip="Próximamente">Publicaciones</a></li>
+      <li><a href="/publicaciones">Publicaciones</a></li>
+      <li class="user-menu">
+        <button class="user-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="user-dropdown"
+          title="Cuenta">
+          <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path fill="currentColor" d="M12 12a5 5 0 1 0-5-5a5 5 0 0 0 5 5Z" />
+            <path fill="currentColor" d="M4 20a8 8 0 1 1 16 0z" />
+          </svg>
+        </button>
+
+        <ul id="user-dropdown" class="user-dropdown" role="menu">
+                    <li role="none">
+                        {% if role in ('admin','superadmin') %}
+
+                        <a role="menuitem" href="/articulos">Articulos</a>
+                        {% endif %}
+
+                        <form action="/logout" method="POST">
+                            <a role="menuitem" href="/logout">Salir</a>
+                        </form>
+                    </li>
+                </ul>
+      </li>
     </ul>
   </nav>
 
