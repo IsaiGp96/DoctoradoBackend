@@ -16,7 +16,7 @@ body, html {
 .login-section {
     background: #bebebe36;
     border-radius: 16px;
-    box-shadow: 0 2px 16px 0 rgba(20, 40, 70, 0.08);
+    box-shadow: 0 2px 16px 0 rgba(20, 40, 70, 0.088);
     padding: 2.5rem 2rem 2rem 2rem;
     width: 100%;
     max-width: 360px;
@@ -112,3 +112,4 @@ body, html {
         padding: 1.5rem 0.8rem 1.2rem 0.8rem;
     }
 }
+
