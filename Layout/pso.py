@@ -19,6 +19,7 @@ from matplotlib.transforms import Bbox
 import matplotlib.pyplot as plt
 from datetime import date, datetime
 import asyncio
+from src.utils.saveFiles import obtener_rutas_experimento
 
 
 
@@ -469,9 +470,23 @@ async def ejecutar_pso(w, wwi, c1, c2, T, r1, r2, username: str):
     alternativas = Resultados[-10:]
     hora_fin = datetime.now()
 
-    
 
-    with pd.ExcelWriter(f'Experiments/{username}/{today_str}/_PSO-{ts}.xlsx', engine='xlsxwriter') as writer:
+    today_str = datetime.now().strftime("%Y%m%d")
+    ts = datetime.now().strftime("%H%M%S")
+
+    excel_path, csv_path = obtener_rutas_experimento(
+        username=username,
+        today_str=today_str,
+        algorithm="PSO",
+        prefijo="_PSO",
+        ts=ts
+    )
+
+    print(excel_path)
+    print(csv_path)
+
+
+    with pd.ExcelWriter(excel_path, engine='xlsxwriter') as writer:
         dataI.to_excel(writer, sheet_name='Iniciales')
         datar1.to_excel(writer, sheet_name='r1')
         datar2.to_excel(writer, sheet_name='r2')
@@ -489,7 +504,7 @@ async def ejecutar_pso(w, wwi, c1, c2, T, r1, r2, username: str):
         now = datetime.now()
         hoy = now.strftime('%d/%m/%Y %H:%M:%S')
 
-    with open(f'Experiments/{username}/{today_str}/_PSO-{ts}.csv', 'a', newline='', encoding='utf-8') as csvfile:
+    with open(csv_path, 'a', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
 
         #Escribir la fecha y hora actual en primera linea de ejecucion

@@ -178,7 +178,12 @@ def dapso():
 @app.route('/dapso', methods=['POST'])
 @roles_required('user','admin', 'superadmin')
 def calcular_dapso():
-   try:
+    uid = session.get('user_id')  # <-- string key, NO lista
+    if uid:
+        user = db.session.get(User, uid)   # SQLAlchemy 2.x
+        if user:
+            usuario = user.username
+    try:
         # Obtén los datos del formulario
         w_input = [request.form.get(f'w[{i}]', '') for i in range(5)]
         w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
@@ -193,7 +198,7 @@ def calcular_dapso():
         r2 = [float(num.strip()) for num in r2_input.split(',')]
 
         # Llama a la función de PSO en pso.py
-        datosDapso = asyncio.run(ejecutar_dapso(w, wwi, c1, c2, T, r1, r2))
+        datosDapso = asyncio.run(ejecutar_dapso(w, wwi, c1, c2, T, r1, r2, usuario))
         print("Resultados de la ejecución:", datosDapso)
 
         # Obtén los resultados específicos que deseas mostrar
@@ -203,10 +208,10 @@ def calcular_dapso():
 
         # Puedes hacer lo que quieras con los resultados, por ejemplo, pasarlos al template
         return jsonify(datosDapso)
-   except Exception as e:
+    except Exception as e:
         # Manejo de errores, por ejemplo, mostrar un mensaje de error en la interfaz
         print(f'Error en calcular_dapso: {str(e)}')
-   return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
+    return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
 
 #-------------------------------------------------------------------------------------------------------------------
 
@@ -1594,19 +1599,63 @@ def home():
             usuario = user.username
     return render_template('index.html', usuario=usuario)
 
+def get_username():
+    uid = session.get('user_id')
+    user = db.session.get(User, uid)
+    username = user.username
+    
+    return username
+
+def obtener_ruta_excel(username, algorithm):
+    today_str = datetime.now().strftime("%Y%m%d")
+    base_path = "Experiments"
+    carpeta = os.path.join(base_path, username, algorithm, today_str)
+
+    if not os.path.isdir(carpeta):
+        return None
+    
+    archivos = os.listdir(carpeta)
+
+    algorithm_files = []
+
+    for archivo in archivos:
+        match = re.match(rf"_{algorithm}-(\d+)\.xlsx$", archivo)
+        if match:
+            timestamp = match.group(1)
+            algorithm_files.append((archivo, timestamp))
+            
+    if not algorithm_files:
+        return None
+    
+    #Se ordena por timestamp
+    algorithm_files.sort(key = lambda x: x[1], reverse=True)
+    archivo_mas_nuevo = algorithm_files[0][0]
+    
+    return os.path.join(carpeta, archivo_mas_nuevo)
+
 @app.route('/descargar-pso')
 @roles_required('user','admin', 'superadmin')
 def descargar_excel_pso():
-    directorio = 'Experiments/static'  
-    filename = 'PSO.xlsx'
-    return send_from_directory(directorio, filename, as_attachment=True)
+    username = get_username()
+    file = obtener_ruta_excel(username , "PSO")
+    directorio = os.path.dirname(file)
+    archivo = os.path.basename(file)
+    if not file:
+        return "No hay ejecuciones", 404
+    
+    return send_from_directory(directorio, archivo, as_attachment=True)
 
 @app.route('/descargar-dapso')
 @roles_required('user','admin', 'superadmin')
 def descargar_excel_dapso():
-    directorio = 'Experiments/static'  
-    filename = 'DAPSO_1.xlsx'
-    return send_from_directory(directorio, filename, as_attachment=True)
+    username = get_username()
+    file = obtener_ruta_excel(username , "DAPSO")
+    directorio = os.path.dirname(file)
+    archivo = os.path.basename(file)
+    if not file:
+        return "No hay ejecuciones", 404
+    
+    return send_from_directory(directorio, archivo, as_attachment=True)
 
 @app.route('/descargar-moorapso')
 @roles_required('user','admin', 'superadmin')
