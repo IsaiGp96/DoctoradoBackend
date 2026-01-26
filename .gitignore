@@ -21,6 +21,7 @@ pip-wheel-metadata/
 htmlcov/
 .pytest_cache/
 /Experiments/
+/db/
 
 # Variables de entorno
 .env

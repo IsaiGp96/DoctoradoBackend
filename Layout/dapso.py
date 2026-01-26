@@ -15,9 +15,10 @@ import random
 from re import X
 import datetime
 import asyncio
+from src.utils.saveFiles import obtener_rutas_experimento
 
 
-async def ejecutar_dapso(w, wwi, c1, c2, T, r1, r2):
+async def ejecutar_dapso(w, wwi, c1, c2, T, r1, r2, username: str):
     
     hora_inicio = datetime.datetime.now()
     fecha_inicio = hora_inicio.date()
@@ -569,7 +570,21 @@ async def ejecutar_dapso(w, wwi, c1, c2, T, r1, r2):
     dataGBP = pd.DataFrame(GBP)
     dataOrig=pd.DataFrame(A1t)
 
-    with pd.ExcelWriter(excel_filename, engine='xlsxwriter') as writer:
+    today_str = datetime.datetime.now().strftime("%Y%m%d")
+    ts = datetime.datetime.now().strftime("%H%M%S")
+
+    excel_path, csv_path = obtener_rutas_experimento(
+        username=username,
+        today_str=today_str,
+        algorithm="DAPSO",
+        prefijo="_DAPSO",
+        ts=ts
+    )
+
+    print(excel_path)
+    print(csv_path)
+
+    with pd.ExcelWriter(excel_path, engine='xlsxwriter') as writer:
         dataT.to_excel(writer, sheet_name='Tiempos')
         dataResultM.to_excel(writer, sheet_name='ResultadosDA')
         dataResult.to_excel(writer, sheet_name='Resultados')
@@ -598,7 +613,7 @@ async def ejecutar_dapso(w, wwi, c1, c2, T, r1, r2):
     print(f'Datos guardados en el archivo: {excel_filename}')
 
     ### -- Guardar los mismos datos en un archivo CSV con el mismo número
-    csv_filename = f'{base_filename}_{counter}.csv'
+    csv_filename = csv_path
     dataT.to_csv(csv_filename, index=False)
     dataResultM.to_csv(csv_filename, mode='a', index=False)
     dataResult.to_csv(csv_filename, mode='a', index=False)
