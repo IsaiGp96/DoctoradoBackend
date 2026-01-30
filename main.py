@@ -614,6 +614,11 @@ def mooraba():
 @app.route('/mooraba', methods=['POST'])
 @roles_required('user','admin', 'superadmin')
 def calcular_mooraba():
+    uid = session.get('user_id')  # <-- string key, NO lista
+    if uid:
+        user = db.session.get(User, uid)   # SQLAlchemy 2.x
+        if user:
+            usuario = user.username
     try:
         # Obtén los datos del formulario de la solicitud POST
         w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
@@ -623,7 +628,7 @@ def calcular_mooraba():
         iter_max = int(request.form['T'])
 
         # Llama a la función de PSO en pso.py
-        datosMooraba = asyncio.run(ejecutar_mooraba(w, alpha, gamma, iter_max))
+        datosMooraba = asyncio.run(ejecutar_mooraba(w, alpha, gamma, iter_max, usuario))
         print("Resultados de la ejecución:", datosMooraba)
 
         # Devuelve los resultados como JSON
@@ -1728,9 +1733,14 @@ def descargar_excel_daba():
 @app.route('/descargar-mooraba')
 @roles_required('user','admin', 'superadmin')
 def descargar_excel_mooraba():
-    directorio = 'Experiments/static'  
-    filename = 'MOORABA_1.xlsx'
-    return send_from_directory(directorio, filename, as_attachment=True)
+    username = get_username()
+    file = obtener_ruta_excel(username , "MOORABA")
+    directorio = os.path.dirname(file)
+    archivo = os.path.basename(file)
+    if not file:
+        return "No hay ejecuciones", 404
+    
+    return send_from_directory(directorio, archivo, as_attachment=True)
 
 @app.route('/descargar-topsisba')
 @roles_required('user','admin', 'superadmin')
