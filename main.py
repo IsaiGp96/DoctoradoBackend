@@ -1259,6 +1259,11 @@ def moorav():
 @app.route('/moorav', methods=['POST'])
 @roles_required('user','admin', 'superadmin')
 def calcular_moorav():
+    uid = session.get('user_id')  # <-- string key, NO lista
+    if uid:
+        user = db.session.get(User, uid)   # SQLAlchemy 2.x
+        if user:
+            usuario = user.username
     try:
         # Obtén los datos del formulario
         w_input = request.form.get('w', '')  # Obtiene el valor de 'w' del formulario
@@ -1267,7 +1272,7 @@ def calcular_moorav():
         
 
         # Llama a la función de PSO en pso.py
-        datosMoorav = asyncio.run(ejecutar_moorav(w,))
+        datosMoorav = asyncio.run(ejecutar_moorav(w, usuario))
         print("Resultados de la ejecución:", datosMoorav)
 
         # Obtén los resultados específicos que deseas mostrar
@@ -1848,9 +1853,14 @@ def descargar_excel_topsis():
 @app.route('/descargar-moorav')
 @roles_required('user','admin', 'superadmin')
 def descargar_excel_moorav():
-    directorio = 'Experiments/static'  
-    filename = 'MOORA_1.xlsx'
-    return send_from_directory(directorio, filename, as_attachment=True)
+    username = get_username()
+    file = obtener_ruta_excel(username , "MOORAV")
+    directorio = os.path.dirname(file)
+    archivo = os.path.basename(file)
+    if not file:
+        return "No hay ejecuciones", 404
+    
+    return send_from_directory(directorio, archivo, as_attachment=True)
 
 @app.route('/descargar-da')
 @roles_required('user','admin', 'superadmin')
