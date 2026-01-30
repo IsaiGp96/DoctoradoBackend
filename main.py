@@ -842,6 +842,11 @@ def topsisaco():
 @app.route('/topsisaco', methods=['POST'])
 @roles_required('user','admin', 'superadmin')
 def calcular_topsisaco():
+    uid = session.get('user_id')  # <-- string key, NO lista
+    if uid:
+        user = db.session.get(User, uid)   # SQLAlchemy 2.x
+        if user:
+            usuario = user.username
     try:
         w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
         w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
@@ -861,7 +866,7 @@ def calcular_topsisaco():
         # benefit_attributes = [int(value) for value in benefit_values if value.strip() != '']
 
         # Llama a la función de PSO en pso.py
-        datosTopsisaco = asyncio.run(ejecutar_topsisaco(w,alphaAco,beta,rho,Q,n_ants,iter_max))
+        datosTopsisaco = asyncio.run(ejecutar_topsisaco(w,alphaAco,beta,rho,Q,n_ants,iter_max, usuario))
         print("Resultados de la ejecución:", datosTopsisaco)
 
         # Devuelve los resultados como JSON
@@ -1814,9 +1819,14 @@ def descargar_excel_mooraaco():
 @app.route('/descargar-topsisaco')
 @roles_required('user','admin', 'superadmin')
 def descargar_excel_topsisaco():
-    directorio = 'Experiments/static'  
-    filename = 'TOPSISACO_1.xlsx'
-    return send_from_directory(directorio, filename, as_attachment=True)
+    username = get_username()
+    file = obtener_ruta_excel(username , "TOPSISACO")
+    directorio = os.path.dirname(file)
+    archivo = os.path.basename(file)
+    if not file:
+        return "No hay ejecuciones", 404
+    
+    return send_from_directory(directorio, archivo, as_attachment=True)
 
 @app.route('/descargar-topsis')
 @roles_required('user','admin', 'superadmin')
