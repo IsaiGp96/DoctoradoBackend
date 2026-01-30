@@ -10,9 +10,10 @@ from math import e
 
 import numpy as np
 import pandas as pd
+from src.utils.saveFiles import obtener_rutas_experimento
 
 
-async def ejecutar_ba(w, alpha, gamma, iter_max):
+async def ejecutar_ba(w, alpha, gamma, iter_max, username):
     hora_inicio = datetime.datetime.now()
     fecha_inicio = hora_inicio.date()
 
@@ -564,7 +565,7 @@ async def ejecutar_ba(w, alpha, gamma, iter_max):
     alternativas =  Resultados[-10:]
 
     # PAra guardar información en archivo de EXCEl
-    dI={"alpha":alpha, "gamma":gamma, "No. de iteraciones":iter_max, "Función_objetivoPSO:":['Min f(x_{1},x_ {2}) =(x_{1}^{2} + (x_{2}\)^{2}")'], "Rango_Frecuencia(min)":fmin,"Rango_Frecuencia(max)":fmax}
+    dI={"alpha":alpha, "gamma":gamma, "No. de iteraciones":iter_max, "Función_objetivoPSO:":['Min f(x_{1},x_ {2}) =(x_{1}^{2} + (x_{2}\\)^{2}")'], "Rango_Frecuencia(min)":fmin,"Rango_Frecuencia(max)":fmax}
     #General={"Algoritmo BA clásico":0, "Cantidad de Iteraciones":iter_max, "Hora de inicio": hora_inicio.time(), "Fecha de inicio": fecha_inicio, "Hora de finalización": hora_fin.time(), "Tiempo de ejecución":hora_fin-hora_inicio}
 
     #dataGral =pd.DataFrame(General)
@@ -579,7 +580,21 @@ async def ejecutar_ba(w, alpha, gamma, iter_max):
     #dataFmin= pd.DataFrame(FuncObj)
     #dataFmax= pd.DataFrame(IF_max)
 
-    with pd.ExcelWriter('Experiments/BA.xlsx', engine='xlsxwriter') as writer:
+    today_str = datetime.datetime.now().strftime("%Y%m%d")
+    ts = datetime.datetime.now().strftime("%H%M%S")
+
+    excel_path, csv_path = obtener_rutas_experimento(
+        username=username,
+        today_str=today_str,
+        algorithm="BA",
+        prefijo="_BA",
+        ts=ts
+    )
+
+    print(excel_path)
+    print(csv_path)
+
+    with pd.ExcelWriter(excel_path, engine='xlsxwriter') as writer:
         #dataGral.to_excel(writer, sheet_name='Generales')
         dataResult.to_excel(writer, sheet_name='Resultados')
         dataI.to_excel(writer, sheet_name='Iniciales')

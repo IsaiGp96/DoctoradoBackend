@@ -509,6 +509,11 @@ def ba():
 @app.route('/ba', methods=['POST'])
 @roles_required('user','admin', 'superadmin')
 def calcular_ba():
+    uid = session.get('user_id')  # <-- string key, NO lista
+    if uid:
+        user = db.session.get(User, uid)   # SQLAlchemy 2.x
+        if user:
+            usuario = user.username
     try:
         # Obtén los datos del formulario
         w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
@@ -518,7 +523,7 @@ def calcular_ba():
         iter_max = int(request.form['T'])
 
         # Llama a la función de PSO en pso.py
-        datosBa = asyncio.run(ejecutar_ba(w, alpha, gamma, iter_max))
+        datosBa = asyncio.run(ejecutar_ba(w, alpha, gamma, iter_max, usuario))
         print("Resultados de la ejecución:", datosBa)
 
         # Obtén los resultados específicos que deseas mostrar
@@ -1694,9 +1699,14 @@ def descargar_excel_topsispso():
 @app.route('/descargar-ba')
 @roles_required('user','admin', 'superadmin')
 def descargar_excel_ba():
-    directorio = 'Experiments/static'  
-    filename = 'BA.xlsx'
-    return send_from_directory(directorio, filename, as_attachment=True)
+    username = get_username()
+    file = obtener_ruta_excel(username , "BA")
+    directorio = os.path.dirname(file)
+    archivo = os.path.basename(file)
+    if not file:
+        return "No hay ejecuciones", 404
+    
+    return send_from_directory(directorio, archivo, as_attachment=True)
 
 @app.route('/descargar-daba')
 @roles_required('user','admin', 'superadmin')
