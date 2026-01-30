@@ -776,6 +776,11 @@ def mooraaco():
 @app.route('/mooraaco', methods=['POST'])
 @roles_required('user','admin', 'superadmin')
 def calcular_mooraaco():
+    uid = session.get('user_id')  # <-- string key, NO lista
+    if uid:
+        user = db.session.get(User, uid)   # SQLAlchemy 2.x
+        if user:
+            usuario = user.username
     try:
         ev_input = request.form['ev']  # Obtén el valor
         
@@ -792,7 +797,7 @@ def calcular_mooraaco():
         iter_max = int(request.form['T'])
 
         # Llama a la función de PSO en pso.py
-        datosMooraaco = asyncio.run(ejecutar_mooraaco(EV,w,alphaAco,beta,rho,Q,n_ants,iter_max))
+        datosMooraaco = asyncio.run(ejecutar_mooraaco(EV,w,alphaAco,beta,rho,Q,n_ants,iter_max, usuario))
         print("Resultados de la ejecución:", datosMooraaco)
 
         # Devuelve los resultados como JSON
@@ -1797,9 +1802,14 @@ def descargar_excel_daaco():
 @app.route('/descargar-mooraaco')
 @roles_required('user','admin', 'superadmin')
 def descargar_excel_mooraaco():
-    directorio = 'Experiments/static'  
-    filename = 'MOORAACO_1.xlsx'
-    return send_from_directory(directorio, filename, as_attachment=True)
+    username = get_username()
+    file = obtener_ruta_excel(username , "MOORAACO")
+    directorio = os.path.dirname(file)
+    archivo = os.path.basename(file)
+    if not file:
+        return "No hay ejecuciones", 404
+    
+    return send_from_directory(directorio, archivo, as_attachment=True)
 
 @app.route('/descargar-topsisaco')
 @roles_required('user','admin', 'superadmin')
