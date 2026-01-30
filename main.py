@@ -717,6 +717,11 @@ def daaco():
 @app.route('/daaco', methods=['POST'])
 @roles_required('user','admin', 'superadmin')
 def calcular_daaco():
+    uid = session.get('user_id')  # <-- string key, NO lista
+    if uid:
+        user = db.session.get(User, uid)   # SQLAlchemy 2.x
+        if user:
+            usuario = user.username
     try:
         w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
         w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
@@ -728,7 +733,7 @@ def calcular_daaco():
         iter_max = int(request.form['T'])
 
         # Llama a la función de PSO en pso.py
-        datosDaaco = asyncio.run(ejecutar_daaco(w, alphaAco, beta, rho, Q, n_ants, iter_max))
+        datosDaaco = asyncio.run(ejecutar_daaco(w, alphaAco, beta, rho, Q, n_ants, iter_max, usuario))
         print("Resultados de la ejecución:", datosDaaco)
 
         # Devuelve los resultados como JSON
@@ -1775,13 +1780,19 @@ def descargar_excel_aco():
         return "No hay ejecuciones", 404
     
     return send_from_directory(directorio, archivo, as_attachment=True)
+
 #Aquí hubo un error
 @app.route('/descargar-daaco')
 @roles_required('user','admin', 'superadmin')
 def descargar_excel_daaco():
-    directorio = 'Experiments/static'  
-    filename = 'DAACO_1.xlsx'
-    return send_from_directory(directorio, filename, as_attachment=True)
+    username = get_username()
+    file = obtener_ruta_excel(username , "DAACO")
+    directorio = os.path.dirname(file)
+    archivo = os.path.basename(file)
+    if not file:
+        return "No hay ejecuciones", 404
+    
+    return send_from_directory(directorio, archivo, as_attachment=True)
 
 @app.route('/descargar-mooraaco')
 @roles_required('user','admin', 'superadmin')
