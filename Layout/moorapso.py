@@ -20,9 +20,10 @@ import xlsxwriter
 from flask import Flask, render_template, request
 from matplotlib.transforms import Bbox
 from openpyxl import load_workbook
+from src.utils.saveFiles import obtener_rutas_experimento
 
 
-async def ejecutar_moorapso(w, wwi, c1, c2, T, r1, r2): 
+async def ejecutar_moorapso(w, wwi, c1, c2, T, r1, r2, username): 
     hora_inicio = datetime.datetime.now()
     fecha_inicio = hora_inicio.date()
     Resultados=[]
@@ -629,8 +630,21 @@ async def ejecutar_moorapso(w, wwi, c1, c2, T, r1, r2):
     alternativas = Resultados[-10:]
     hora_fin = datetime.datetime.now()
 
+    today_str = datetime.datetime.now().strftime("%Y%m%d")
+    ts = datetime.datetime.now().strftime("%H%M%S")
 
-    with pd.ExcelWriter(excel_filename, engine='xlsxwriter') as writer:
+    excel_path, csv_path = obtener_rutas_experimento(
+        username=username,
+        today_str=today_str,
+        algorithm="MOORAPSO",
+        prefijo="_MOORAPSO",
+        ts=ts
+    )
+
+    print(excel_path)
+    print(csv_path)
+
+    with pd.ExcelWriter(excel_path, engine='xlsxwriter') as writer:
         dataT.to_excel(writer, sheet_name='Tiempos', index=False)
         dataResultM.to_excel(writer, sheet_name='ResultadosMoora')
         dataResult.to_excel(writer, sheet_name='Resultados')
@@ -659,27 +673,26 @@ async def ejecutar_moorapso(w, wwi, c1, c2, T, r1, r2):
 
 
     ### -- Guardar los mismos datos en un archivo CSV con el mismo número
-    csv_filename = f'{base_filename}_{counter}.csv'
-    dataT.to_csv(csv_filename, index=False)
-    dataResultM.to_csv(csv_filename, mode='a', index=False)
-    dataResult.to_csv(csv_filename, mode='a', index=False)
-    dataOrig.to_csv(csv_filename, mode='a', index=False)
-    dataI.to_csv(csv_filename, mode='a', index=False)
-    dataw.to_csv(csv_filename, mode='a', index=False)
-    r1.to_csv(csv_filename, mode='a', index=False)
-    r2.to_csv(csv_filename, mode='a', index=False)
-    x.to_csv(csv_filename, mode='a', index=False)
-    V.to_csv(csv_filename, mode='a', index=False)
-    CP.to_csv(csv_filename, mode='a', index=False)
-    PBEST.to_csv(csv_filename, mode='a', index=False)
-    Fx.to_csv(csv_filename, mode='a', index=False)
-    dataGBF.to_csv(csv_filename, mode='a', index=False)
-    dataGBP.to_csv(csv_filename, mode='a', index=False)
-    dataND.to_csv(csv_filename, mode='a', index=False)
-    datawd.to_csv(csv_filename, mode='a', index=False)
-    dataAlt.to_csv(csv_filename, mode='a', index=False)
+    dataT.to_csv(csv_path, index=False)
+    dataResultM.to_csv(csv_path, mode='a', index=False)
+    dataResult.to_csv(csv_path, mode='a', index=False)
+    dataOrig.to_csv(csv_path, mode='a', index=False)
+    dataI.to_csv(csv_path, mode='a', index=False)
+    dataw.to_csv(csv_path, mode='a', index=False)
+    r1.to_csv(csv_path, mode='a', index=False)
+    r2.to_csv(csv_path, mode='a', index=False)
+    x.to_csv(csv_path, mode='a', index=False)
+    V.to_csv(csv_path, mode='a', index=False)
+    CP.to_csv(csv_path, mode='a', index=False)
+    PBEST.to_csv(csv_path, mode='a', index=False)
+    Fx.to_csv(csv_path, mode='a', index=False)
+    dataGBF.to_csv(csv_path, mode='a', index=False)
+    dataGBP.to_csv(csv_path, mode='a', index=False)
+    dataND.to_csv(csv_path, mode='a', index=False)
+    datawd.to_csv(csv_path, mode='a', index=False)
+    dataAlt.to_csv(csv_path, mode='a', index=False)
 
-    print(f'Datos guardados en el archivo CSV: {csv_filename}')
+    print(f'Datos guardados en el archivo CSV: {csv_path}')
     print()
     
     print("  --------------------------------- \n")
