@@ -662,6 +662,11 @@ def topsisba():
 @app.route('/topsisba', methods=['POST'])
 @roles_required('user','admin', 'superadmin')
 def calcular_topsisba():
+    uid = session.get('user_id')  # <-- string key, NO lista
+    if uid:
+        user = db.session.get(User, uid)   # SQLAlchemy 2.x
+        if user:
+            usuario = user.username
     try:
         # Obtén los datos del formulario de la solicitud POST
         w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
@@ -671,7 +676,7 @@ def calcular_topsisba():
         iter_max = int(request.form['T'])
 
         # Llama a la función de PSO en pso.py
-        datosTopsisba = asyncio.run(ejecutar_topsisba(w, alpha, gamma, iter_max))
+        datosTopsisba = asyncio.run(ejecutar_topsisba(w, alpha, gamma, iter_max, usuario))
         print("Resultados de la ejecución:", datosTopsisba)
 
         # Devuelve los resultados como JSON
@@ -1745,9 +1750,14 @@ def descargar_excel_mooraba():
 @app.route('/descargar-topsisba')
 @roles_required('user','admin', 'superadmin')
 def descargar_excel_topsisba():
-    directorio = 'Experiments/static'  
-    filename = 'TOPSISBA_1.xlsx'
-    return send_from_directory(directorio, filename, as_attachment=True)
+    username = get_username()
+    file = obtener_ruta_excel(username , "TOPSISBA")
+    directorio = os.path.dirname(file)
+    archivo = os.path.basename(file)
+    if not file:
+        return "No hay ejecuciones", 404
+    
+    return send_from_directory(directorio, archivo, as_attachment=True)
 
 @app.route('/descargar-aco')
 @roles_required('user','admin', 'superadmin')

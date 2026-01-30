@@ -18,9 +18,10 @@ import math
 import datetime
 from math import e
 import asyncio
+from src.utils.saveFiles import obtener_rutas_experimento
 
 
-async def ejecutar_topsisba(w, alphaBa, gamma, iter_max):
+async def ejecutar_topsisba(w, alphaBa, gamma, iter_max, username):
 
     hora_inicio = datetime.datetime.now()
     fecha_inicio = hora_inicio.date()
@@ -740,8 +741,21 @@ async def ejecutar_topsisba(w, alphaBa, gamma, iter_max):
     datagbnw =pd.DataFrame(global_bestNW)
     datagb =pd.DataFrame(global_best)
 
+    today_str = datetime.datetime.now().strftime("%Y%m%d")
+    ts = datetime.datetime.now().strftime("%H%M%S")
 
-    with pd.ExcelWriter(excel_filename, engine='xlsxwriter') as writer:
+    excel_path, csv_path = obtener_rutas_experimento(
+        username=username,
+        today_str=today_str,
+        algorithm="TOPSISBA",
+        prefijo="_TOPSISBA",
+        ts=ts
+    )
+
+    print(excel_path)
+    print(csv_path)
+
+    with pd.ExcelWriter(excel_path, engine='xlsxwriter') as writer:
         dataT.to_excel(writer, sheet_name='Tiempos')
         dataMOO.to_excel(writer, sheet_name='Resultados_TOPSIS')
         dataResult.to_excel(writer, sheet_name='Resultados')
@@ -776,40 +790,39 @@ async def ejecutar_topsisba(w, alphaBa, gamma, iter_max):
         for i, col in enumerate(dataT.columns):
             column_len = max(dataT[col].astype(str).map(len).max(), len(col))
             worksheet.set_column(i, i, column_len)
-    print(f'Datos guardados en el archivo: {excel_filename}')
+    print(f'Datos guardados en el archivo: {excel_path}')
 
     ### -- Guardar los mismos datos en un archivo CSV con el mismo número
-    csv_filename = f'{base_filename}_{counter}.csv'
-    dataI.to_csv(csv_filename, mode='a', index=False)
-    dataT.to_csv(csv_filename, index=False)
-    dataMOO.to_csv(csv_filename, mode='a', index=False)
-    dataResult.to_csv(csv_filename, mode='a', index=False)
-    datagb.to_csv(csv_filename, mode='a', index=False)
-    datagbnw.to_csv(csv_filename, mode='a', index=False)
-    dataw.to_csv(csv_filename, mode='a', index=False)
-    dataBen.to_csv(csv_filename, mode='a', index=False)
-    dataEV.to_csv(csv_filename, mode='a', index=False)
-    dataOrig.to_csv(csv_filename, mode='a', index=False)
-    dataNMx.to_csv(csv_filename, mode='a', index=False)
-    dataNMxW.to_csv(csv_filename, mode='a', index=False)
-    dataIb.to_csv(csv_filename, mode='a', index=False)
-    dataIw.to_csv(csv_filename, mode='a', index=False)
-    dataSBt.to_csv(csv_filename, mode='a', index=False)
-    dataSwT.to_csv(csv_filename, mode='a', index=False)
-    datapsc.to_csv(csv_filename, mode='a', index=False)
-    dataAlt.to_csv(csv_filename, mode='a', index=False)
-    datarii.to_csv(csv_filename, mode='a', index=False)
-    datari.to_csv(csv_filename, mode='a', index=False)
-    dataaii.to_csv(csv_filename, mode='a', index=False)
-    dataai.to_csv(csv_filename, mode='a', index=False)
-    dataf.to_csv(csv_filename, mode='a', index=False)
-    datarnd.to_csv(csv_filename, mode='a', index=False)
-    v.to_csv(csv_filename, mode='a', index=False)
-    x.to_csv(csv_filename, mode='a', index=False)
-    dataFOj.to_csv(csv_filename, mode='a', index=False)
-    dataFOjN.to_csv(csv_filename, mode='a', index=False)
-    dataAlt.to_csv(csv_filename, mode='a', index=False)
-    print(f'Datos guardados en el archivo CSV: {csv_filename}')
+    dataI.to_csv(csv_path, mode='a', index=False)
+    dataT.to_csv(csv_path, index=False)
+    dataMOO.to_csv(csv_path, mode='a', index=False)
+    dataResult.to_csv(csv_path, mode='a', index=False)
+    datagb.to_csv(csv_path, mode='a', index=False)
+    datagbnw.to_csv(csv_path, mode='a', index=False)
+    dataw.to_csv(csv_path, mode='a', index=False)
+    dataBen.to_csv(csv_path, mode='a', index=False)
+    dataEV.to_csv(csv_path, mode='a', index=False)
+    dataOrig.to_csv(csv_path, mode='a', index=False)
+    dataNMx.to_csv(csv_path, mode='a', index=False)
+    dataNMxW.to_csv(csv_path, mode='a', index=False)
+    dataIb.to_csv(csv_path, mode='a', index=False)
+    dataIw.to_csv(csv_path, mode='a', index=False)
+    dataSBt.to_csv(csv_path, mode='a', index=False)
+    dataSwT.to_csv(csv_path, mode='a', index=False)
+    datapsc.to_csv(csv_path, mode='a', index=False)
+    dataAlt.to_csv(csv_path, mode='a', index=False)
+    datarii.to_csv(csv_path, mode='a', index=False)
+    datari.to_csv(csv_path, mode='a', index=False)
+    dataaii.to_csv(csv_path, mode='a', index=False)
+    dataai.to_csv(csv_path, mode='a', index=False)
+    dataf.to_csv(csv_path, mode='a', index=False)
+    datarnd.to_csv(csv_path, mode='a', index=False)
+    v.to_csv(csv_path, mode='a', index=False)
+    x.to_csv(csv_path, mode='a', index=False)
+    dataFOj.to_csv(csv_path, mode='a', index=False)
+    dataFOjN.to_csv(csv_path, mode='a', index=False)
+    dataAlt.to_csv(csv_path, mode='a', index=False)
+    print(f'Datos guardados en el archivo CSV: {csv_path}')
     print()
 
 
