@@ -564,6 +564,11 @@ def daba():
 @app.route('/daba', methods=['POST'])
 @roles_required('user','admin', 'superadmin')
 def calcular_daba():
+    uid = session.get('user_id')  # <-- string key, NO lista
+    if uid:
+        user = db.session.get(User, uid)   # SQLAlchemy 2.x
+        if user:
+            usuario = user.username
     try:
         # Obtén los datos del formulario de la solicitud POST
         w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
@@ -573,7 +578,7 @@ def calcular_daba():
         iter_max = int(request.form['T'])
 
         # Llama a la función de PSO en pso.py
-        datosDaba = asyncio.run(ejecutar_daba(w, alpha, gamma, iter_max))
+        datosDaba = asyncio.run(ejecutar_daba(w, alpha, gamma, iter_max, usuario))
         print("Resultados de la ejecución:", datosDaba)
 
         # Devuelve los resultados como JSON
@@ -1711,9 +1716,14 @@ def descargar_excel_ba():
 @app.route('/descargar-daba')
 @roles_required('user','admin', 'superadmin')
 def descargar_excel_daba():
-    directorio = 'Experiments/static'  
-    filename = 'DABA_1.xlsx'
-    return send_from_directory(directorio, filename, as_attachment=True)
+    username = get_username()
+    file = obtener_ruta_excel(username , "DABA")
+    directorio = os.path.dirname(file)
+    archivo = os.path.basename(file)
+    if not file:
+        return "No hay ejecuciones", 404
+    
+    return send_from_directory(directorio, archivo, as_attachment=True)
 
 @app.route('/descargar-mooraba')
 @roles_required('user','admin', 'superadmin')
