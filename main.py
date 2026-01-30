@@ -1312,6 +1312,11 @@ def da():
 @app.route('/da', methods=['POST'])
 @roles_required('user','admin', 'superadmin')
 def calcular_da():
+    uid = session.get('user_id')  # <-- string key, NO lista
+    if uid:
+        user = db.session.get(User, uid)   # SQLAlchemy 2.x
+        if user:
+            usuario = user.username
     try:
         # Obtén los datos del formulario
         w_input = request.form.get('w', '')  # Obtiene el valor de 'w' del formulario
@@ -1319,7 +1324,7 @@ def calcular_da():
         w = [float(value.strip()) for value in w_values if value.strip()]  # Convierte cada valor a flotante
 
         # Llama a la función de PSO en pso.py
-        datosDa = asyncio.run(ejecutar_da(w))
+        datosDa = asyncio.run(ejecutar_da(w, usuario))
         print("Resultados de la ejecución:", datosDa)
 
         # Obtén los resultados específicos que deseas mostrar
@@ -1865,9 +1870,14 @@ def descargar_excel_moorav():
 @app.route('/descargar-da')
 @roles_required('user','admin', 'superadmin')
 def descargar_excel_da():
-    directorio = 'Experiments/static'  
-    filename = 'DA_1.xlsx'
-    return send_from_directory(directorio, filename, as_attachment=True)
+    username = get_username()
+    file = obtener_ruta_excel(username , "DA")
+    directorio = os.path.dirname(file)
+    archivo = os.path.basename(file)
+    if not file:
+        return "No hay ejecuciones", 404
+    
+    return send_from_directory(directorio, archivo, as_attachment=True)
 
 @app.route('/descargar-zip')
 @roles_required('user','admin', 'superadmin')

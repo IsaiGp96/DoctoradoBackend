@@ -13,9 +13,10 @@ from cProfile import label
 from matplotlib.transforms import Bbox
 import matplotlib.pyplot as plt
 import datetime
+from src.utils.saveFiles import obtener_rutas_experimento
 
 
-async def ejecutar_da(w):
+async def ejecutar_da(w, username):
 
     hora_inicio = datetime.datetime.now()
     fecha_inicio = hora_inicio.date()
@@ -154,14 +155,14 @@ async def ejecutar_da(w):
     ####################################################################################
     ### Para guardar información en archivo de EXCEL
 
-    base_filename = 'Experiments/DA'# Obtener el nombre del archivo base
-    counter = 1 # Inicializar un contador para el nombre del archivo
-    excel_filename = f'{base_filename}_{counter}.xlsx'
+    # base_filename = 'Experiments/DA'# Obtener el nombre del archivo base
+    # counter = 1 # Inicializar un contador para el nombre del archivo
+    # excel_filename = f'{base_filename}_{counter}.xlsx'
 
-    ### --Verificar si el archivo ya existe, si es así, incrementar el contador
-    while os.path.exists(excel_filename):
-        counter += 1
-        excel_filename = f'{base_filename}_{counter}.xlsx'
+    # ### --Verificar si el archivo ya existe, si es así, incrementar el contador
+    # while os.path.exists(excel_filename):
+    #     counter += 1
+    #     excel_filename = f'{base_filename}_{counter}.xlsx'
 
 
     ### -- Guardar los datos en un archivo xlsx
@@ -178,8 +179,21 @@ async def ejecutar_da(w):
     dataDIS= pd.DataFrame(PSS)
     dataPS= pd.DataFrame(PST)
 
+    today_str = datetime.datetime.now().strftime("%Y%m%d")
+    ts = datetime.datetime.now().strftime("%H%M%S")
 
-    with pd.ExcelWriter(excel_filename, engine='xlsxwriter') as writer:
+    excel_path, csv_path = obtener_rutas_experimento(
+        username=username,
+        today_str=today_str,
+        algorithm="DA",
+        prefijo="_DA",
+        ts=ts
+    )
+
+    print(excel_path)
+    print(csv_path)
+
+    with pd.ExcelWriter(excel_path, engine='xlsxwriter') as writer:
         dataT.to_excel(writer, sheet_name='Tiempos')
         dataAlt.to_excel(writer, sheet_name='Ranking_alternativas')
         xP.to_excel(writer, sheet_name='Matriz_decisión')
@@ -193,19 +207,18 @@ async def ejecutar_da(w):
         for i, col in enumerate(dataT.columns):
             column_len = max(dataT[col].astype(str).map(len).max(), len(col))
             worksheet.set_column(i, i, column_len)
-    print(f'Datos guardados en el archivo: {excel_filename}')
+    print(f'Datos guardados en el archivo: {excel_path}')
 
     ### -- Guardar los mismos datos en un archivo CSV con el mismo número
-    csv_filename = f'{base_filename}_{counter}.csv'
-    dataT.to_csv(csv_filename, index=False)
-    dataT.to_csv(csv_filename, mode='a', index=False)
-    dataAlt.to_csv(csv_filename, mode='a', index=False)
-    xP.to_csv(csv_filename, mode='a', index=False)
-    dataw.to_csv(csv_filename, mode='a', index=False)
-    dataSI.to_csv(csv_filename, mode='a', index=False)
-    dataDIS.to_csv(csv_filename, mode='a', index=False)
-    dataPS.to_csv(csv_filename, mode='a', index=False)
-    print(f'Datos guardados en el archivo CSV: {csv_filename}')
+    dataT.to_csv(csv_path, index=False)
+    dataT.to_csv(csv_path, mode='a', index=False)
+    dataAlt.to_csv(csv_path, mode='a', index=False)
+    xP.to_csv(csv_path, mode='a', index=False)
+    dataw.to_csv(csv_path, mode='a', index=False)
+    dataSI.to_csv(csv_path, mode='a', index=False)
+    dataDIS.to_csv(csv_path, mode='a', index=False)
+    dataPS.to_csv(csv_path, mode='a', index=False)
+    print(f'Datos guardados en el archivo CSV: {csv_path}')
     print()
 
     await asyncio.sleep(0.1)
