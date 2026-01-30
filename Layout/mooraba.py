@@ -17,9 +17,10 @@ import pandas as pd
 import xlsxwriter
 from flask import Flask
 from openpyxl import load_workbook
+from src.utils.saveFiles import obtener_rutas_experimento
 
 
-async def ejecutar_mooraba(w, alpha, gamma, iter_max):
+async def ejecutar_mooraba(w, alpha, gamma, iter_max, username):
     hora_inicio = datetime.datetime.now()
     fecha_inicio = hora_inicio.date()
     Resultados=[]
@@ -725,9 +726,21 @@ async def ejecutar_mooraba(w, alpha, gamma, iter_max):
     dataOrig=pd.DataFrame(raw_data)
     
     
+    today_str = datetime.datetime.now().strftime("%Y%m%d")
+    ts = datetime.datetime.now().strftime("%H%M%S")
 
+    excel_path, csv_path = obtener_rutas_experimento(
+        username=username,
+        today_str=today_str,
+        algorithm="MOORABA",
+        prefijo="_MOORABA",
+        ts=ts
+    )
 
-    with pd.ExcelWriter(excel_filename, engine='xlsxwriter') as writer:
+    print(excel_path)
+    print(csv_path)
+
+    with pd.ExcelWriter(excel_path, engine='xlsxwriter') as writer:
         dataT.to_excel(writer, sheet_name='Tiempos', index=False)
         dataMOO.to_excel(writer, sheet_name='Resultados_MOORA')
         dataResult.to_excel(writer, sheet_name='Resultados_iteración')
@@ -759,29 +772,28 @@ async def ejecutar_mooraba(w, alpha, gamma, iter_max):
 
 
     ### -- Guardar los mismos datos en un archivo CSV con el mismo número
-    csv_filename = f'{base_filename}_{counter}.csv'
-    dataT.to_csv(csv_filename, index=False)
-    dataMOO.to_csv(csv_filename, mode='a', index=False)
-    dataResult.to_csv(csv_filename, mode='a', index=False)
-    dataOrig.to_csv(csv_filename, mode='a', index=False)
-    dataI.to_csv(csv_filename, mode='a', index=False)
-    dataw.to_csv(csv_filename, mode='a', index=False)
-    datags.to_csv(csv_filename, mode='a', index=False)
-    datarii.to_csv(csv_filename, mode='a', index=False)
-    datari.to_csv(csv_filename, mode='a', index=False)
-    dataaii.to_csv(csv_filename, mode='a', index=False)
-    dataai.to_csv(csv_filename, mode='a', index=False)
-    dataf.to_csv(csv_filename, mode='a', index=False)
-    datarnd.to_csv(csv_filename, mode='a', index=False)
-    dataECA.to_csv(csv_filename, mode='a', index=False)
-    v.to_csv(csv_filename, mode='a', index=False)
-    x.to_csv(csv_filename, mode='a', index=False)
-    dataND.to_csv(csv_filename, mode='a', index=False)
-    datawd.to_csv(csv_filename, mode='a', index=False)
-    dataAlt.to_csv(csv_filename, mode='a', index=False)
+    dataT.to_csv(csv_path, index=False)
+    dataMOO.to_csv(csv_path, mode='a', index=False)
+    dataResult.to_csv(csv_path, mode='a', index=False)
+    dataOrig.to_csv(csv_path, mode='a', index=False)
+    dataI.to_csv(csv_path, mode='a', index=False)
+    dataw.to_csv(csv_path, mode='a', index=False)
+    datags.to_csv(csv_path, mode='a', index=False)
+    datarii.to_csv(csv_path, mode='a', index=False)
+    datari.to_csv(csv_path, mode='a', index=False)
+    dataaii.to_csv(csv_path, mode='a', index=False)
+    dataai.to_csv(csv_path, mode='a', index=False)
+    dataf.to_csv(csv_path, mode='a', index=False)
+    datarnd.to_csv(csv_path, mode='a', index=False)
+    dataECA.to_csv(csv_path, mode='a', index=False)
+    v.to_csv(csv_path, mode='a', index=False)
+    x.to_csv(csv_path, mode='a', index=False)
+    dataND.to_csv(csv_path, mode='a', index=False)
+    datawd.to_csv(csv_path, mode='a', index=False)
+    dataAlt.to_csv(csv_path, mode='a', index=False)
 
 
-    print(f'Datos guardados en el archivo CSV: {csv_filename}')
+    print(f'Datos guardados en el archivo CSV: {csv_path}')
     print()
     
     # Imprimimos los resultados de tiempo
