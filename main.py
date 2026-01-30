@@ -309,6 +309,11 @@ def topsispso():
 @app.route('/topsispso', methods=['POST'])
 @roles_required('user','admin', 'superadmin')
 def calcular_topsispso():
+    uid = session.get('user_id')  # <-- string key, NO lista
+    if uid:
+        user = db.session.get(User, uid)   # SQLAlchemy 2.x
+        if user:
+            usuario = user.username
     try:
     # Obtén los datos del formulario
         w_input = [request.form.get(f'w[{i}]', '') for i in range(5)]
@@ -324,7 +329,7 @@ def calcular_topsispso():
         r2 = [float(num.strip()) for num in r2_input.split(',')]
 
         # Llama a la función de PSO en pso.py
-        datosTopsispso = asyncio.run(ejecutar_topsispso(w, wwi, c1, c2, T, r1, r2))
+        datosTopsispso = asyncio.run(ejecutar_topsispso(w, wwi, c1, c2, T, r1, r2, usuario))
         print("Resultados de la ejecución:", datosTopsispso)
 
         # Obtén los resultados específicos que deseas mostrar
@@ -1677,9 +1682,14 @@ def descargar_excel_moorapso():
 @app.route('/descargar-topsispso')
 @roles_required('user','admin', 'superadmin')
 def descargar_excel_topsispso():
-    directorio = 'Experiments/static'  
-    filename = 'TOPSISPSO_1.xlsx'
-    return send_from_directory(directorio, filename, as_attachment=True)
+    username = get_username()
+    file = obtener_ruta_excel(username , "TOPSISPSO")
+    directorio = os.path.dirname(file)
+    archivo = os.path.basename(file)
+    if not file:
+        return "No hay ejecuciones", 404
+    
+    return send_from_directory(directorio, archivo, as_attachment=True)
 
 @app.route('/descargar-ba')
 @roles_required('user','admin', 'superadmin')

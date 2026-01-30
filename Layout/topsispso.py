@@ -22,12 +22,13 @@ import random
 from re import X
 import datetime
 import asyncio
+from src.utils.saveFiles import obtener_rutas_experimento
 
 
 ############################################################
 ### Pre-requisites
 # Los datos dados codificados en vectores y matrices
-async def ejecutar_topsispso(w,wwi,c1,c2,T,r1,r2):
+async def ejecutar_topsispso(w,wwi,c1,c2,T,r1,r2, username):
     
     hora_inicio = datetime.datetime.now()
     fecha_inicio = hora_inicio.date()
@@ -632,7 +633,21 @@ async def ejecutar_topsispso(w,wwi,c1,c2,T,r1,r2):
     dataGBP = pd.DataFrame(GBP)
     dataComp= pd.DataFrame(Comparativo)
 
-    with pd.ExcelWriter(excel_filename, engine='xlsxwriter') as writer:
+    today_str = datetime.datetime.now().strftime("%Y%m%d")
+    ts = datetime.datetime.now().strftime("%H%M%S")
+
+    excel_path, csv_path = obtener_rutas_experimento(
+        username=username,
+        today_str=today_str,
+        algorithm="TOPSISPSO",
+        prefijo="_TOPSISPSO",
+        ts=ts
+    )
+
+    print(excel_path)
+    print(csv_path)
+
+    with pd.ExcelWriter(excel_path, engine='xlsxwriter') as writer:
         dataT.to_excel(writer, sheet_name='Tiempos')
         dataMOO.to_excel(writer, sheet_name='ResultadosTOPSIS')
         dataResult.to_excel(writer, sheet_name='Resultados')
@@ -666,39 +681,38 @@ async def ejecutar_topsispso(w,wwi,c1,c2,T,r1,r2):
         for i, col in enumerate(dataT.columns):
             column_len = max(dataT[col].astype(str).map(len).max(), len(col))
             worksheet.set_column(i, i, column_len)
-    print(f'Datos guardados en el archivo: {excel_filename}')
+    print(f'Datos guardados en el archivo: {excel_path}')
 
     ### -- Guardar los mismos datos en un archivo CSV con el mismo número
-    csv_filename = f'{base_filename}_{counter}.csv'
-    dataI.to_csv(csv_filename, mode='a', index=False)
-    dataT.to_csv(csv_filename, index=False)
-    dataT.to_csv(csv_filename, mode='a', index=False)
-    dataMOO.to_csv(csv_filename, mode='a', index=False)
-    dataResult.to_csv(csv_filename, mode='a', index=False)
-    dataComp.to_csv(csv_filename, mode='a', index=False)
-    dataOrig.to_csv(csv_filename, mode='a', index=False)
-    dataI.to_csv(csv_filename, mode='a', index=False)
-    dataw.to_csv(csv_filename, mode='a', index=False)
-    dataBen.to_csv(csv_filename, mode='a', index=False)
-    r1.to_csv(csv_filename, mode='a', index=False)
-    r2.to_csv(csv_filename, mode='a', index=False)
-    x.to_csv(csv_filename, mode='a', index=False)
-    V.to_csv(csv_filename, mode='a', index=False)
-    CP.to_csv(csv_filename, mode='a', index=False)
-    PBEST.to_csv(csv_filename, mode='a', index=False)
-    Fx.to_csv(csv_filename, mode='a', index=False)
-    dataGBF.to_csv(csv_filename, mode='a', index=False)
-    dataGBP.to_csv(csv_filename, mode='a', index=False)
-    dataNMx.to_csv(csv_filename, mode='a', index=False)
-    dataNMxW.to_csv(csv_filename, mode='a', index=False)
-    dataIb.to_csv(csv_filename, mode='a', index=False)
-    dataIw.to_csv(csv_filename, mode='a', index=False)
-    dataSBt.to_csv(csv_filename, mode='a', index=False)
-    dataSwT.to_csv(csv_filename, mode='a', index=False)
-    datapsc.to_csv(csv_filename, mode='a', index=False)
-    dataRkf1.to_csv(csv_filename, mode='a', index=False)
-    dataRkf2.to_csv(csv_filename, mode='a', index=False)
-    print(f'Datos guardados en el archivo CSV: {csv_filename}')
+    dataI.to_csv(csv_path, mode='a', index=False)
+    dataT.to_csv(csv_path, index=False)
+    dataT.to_csv(csv_path, mode='a', index=False)
+    dataMOO.to_csv(csv_path, mode='a', index=False)
+    dataResult.to_csv(csv_path, mode='a', index=False)
+    dataComp.to_csv(csv_path, mode='a', index=False)
+    dataOrig.to_csv(csv_path, mode='a', index=False)
+    dataI.to_csv(csv_path, mode='a', index=False)
+    dataw.to_csv(csv_path, mode='a', index=False)
+    dataBen.to_csv(csv_path, mode='a', index=False)
+    r1.to_csv(csv_path, mode='a', index=False)
+    r2.to_csv(csv_path, mode='a', index=False)
+    x.to_csv(csv_path, mode='a', index=False)
+    V.to_csv(csv_path, mode='a', index=False)
+    CP.to_csv(csv_path, mode='a', index=False)
+    PBEST.to_csv(csv_path, mode='a', index=False)
+    Fx.to_csv(csv_path, mode='a', index=False)
+    dataGBF.to_csv(csv_path, mode='a', index=False)
+    dataGBP.to_csv(csv_path, mode='a', index=False)
+    dataNMx.to_csv(csv_path, mode='a', index=False)
+    dataNMxW.to_csv(csv_path, mode='a', index=False)
+    dataIb.to_csv(csv_path, mode='a', index=False)
+    dataIw.to_csv(csv_path, mode='a', index=False)
+    dataSBt.to_csv(csv_path, mode='a', index=False)
+    dataSwT.to_csv(csv_path, mode='a', index=False)
+    datapsc.to_csv(csv_path, mode='a', index=False)
+    dataRkf1.to_csv(csv_path, mode='a', index=False)
+    dataRkf2.to_csv(csv_path, mode='a', index=False)
+    print(f'Datos guardados en el archivo CSV: {csv_path}')
     print()
     
     await asyncio.sleep(0.1)
