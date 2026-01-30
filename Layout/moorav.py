@@ -17,9 +17,10 @@ import pandas as pd
 import xlsxwriter
 from flask import Flask
 from openpyxl import load_workbook
+from src.utils.saveFiles import obtener_rutas_experimento
 
 
-async def ejecutar_moorav(w):
+async def ejecutar_moorav(w, username):
         
     hora_inicio = datetime.datetime.now()
     fecha_inicio = hora_inicio.date()
@@ -140,14 +141,14 @@ async def ejecutar_moorav(w):
     ####################################################################################
     ### Para guardar información en archivo de EXCEl
 
-    base_filename = 'Experiments/MOORA'# Obtener el nombre del archivo base
-    counter = 1 # Inicializar un contador para el nombre del archivo
-    excel_filename = f'{base_filename}_{counter}.xlsx'
+    # base_filename = 'Experiments/MOORA'# Obtener el nombre del archivo base
+    # counter = 1 # Inicializar un contador para el nombre del archivo
+    # excel_filename = f'{base_filename}_{counter}.xlsx'
 
-    ### --Verificar si el archivo ya existe, si es así, incrementar el contador
-    while os.path.exists(excel_filename):
-        counter += 1
-        excel_filename = f'{base_filename}_{counter}.xlsx'
+    # ### --Verificar si el archivo ya existe, si es así, incrementar el contador
+    # while os.path.exists(excel_filename):
+    #     counter += 1
+    #     excel_filename = f'{base_filename}_{counter}.xlsx'
 
     ### -- Guardar los datos en un archivo xlsx
     dT = {"Método": ["MOORA"],
@@ -165,8 +166,22 @@ async def ejecutar_moorav(w):
     dataOrig=pd.DataFrame(raw_data)
     dataECA = pd.DataFrame(EV)
 
+    today_str = datetime.datetime.now().strftime("%Y%m%d")
+    ts = datetime.datetime.now().strftime("%H%M%S")
 
-    with pd.ExcelWriter('Experiments/MOORA.xlsx', engine='xlsxwriter') as writer:
+    excel_path, csv_path = obtener_rutas_experimento(
+        username=username,
+        today_str=today_str,
+        algorithm="MOORAV",
+        prefijo="_MOORAV",
+        ts=ts
+    )
+
+    print(excel_path)
+    print(csv_path)
+
+
+    with pd.ExcelWriter(excel_path, engine='xlsxwriter') as writer:
         dataT.to_excel(writer, sheet_name='Tiempos')
         dataAlt.to_excel(writer, sheet_name='Ranking_alternativas')
         dataOrig.to_excel(writer, sheet_name='Matriz_decisión')
@@ -181,20 +196,19 @@ async def ejecutar_moorav(w):
         for i, col in enumerate(dataT.columns):
             column_len = max(dataT[col].astype(str).map(len).max(), len(col))
             worksheet.set_column(i, i, column_len)  
-    print(f'Datos guardados en el archivo: {excel_filename}')
+    print(f'Datos guardados en el archivo: {excel_path}')
 
 
     ### -- Guardar los mismos datos en un archivo CSV con el mismo número
-    csv_filename = f'{base_filename}_{counter}.csv'
-    dataT.to_csv(csv_filename, index=False)
-    dataAlt.to_csv(csv_filename, mode='a', index=False)
-    dataOrig.to_csv(csv_filename, mode='a', index=False)
-    dataw.to_csv(csv_filename, mode='a', index=False)
-    datags.to_csv(csv_filename, mode='a', index=False)
-    dataECA.to_csv(csv_filename, mode='a', index=False)
-    dataND.to_csv(csv_filename, mode='a', index=False)
-    datawd.to_csv(csv_filename, mode='a', index=False)
-    print(f'Datos guardados en el archivo CSV: {csv_filename}')
+    dataT.to_csv(csv_path, index=False)
+    dataAlt.to_csv(csv_path, mode='a', index=False)
+    dataOrig.to_csv(csv_path, mode='a', index=False)
+    dataw.to_csv(csv_path, mode='a', index=False)
+    datags.to_csv(csv_path, mode='a', index=False)
+    dataECA.to_csv(csv_path, mode='a', index=False)
+    dataND.to_csv(csv_path, mode='a', index=False)
+    datawd.to_csv(csv_path, mode='a', index=False)
+    print(f'Datos guardados en el archivo CSV: {csv_path}')
     print()
     
         # Imprimimos los resultados de tiempo
