@@ -1210,6 +1210,11 @@ def topsis():
 @app.route('/topsis', methods=['POST'])
 @roles_required('user','admin', 'superadmin')
 def calcular_topsis():
+    uid = session.get('user_id')  # <-- string key, NO lista
+    if uid:
+        user = db.session.get(User, uid)   # SQLAlchemy 2.x
+        if user:
+            usuario = user.username
     try:
         # Obtén los datos del formulario
         w_input = request.form.get('w', '')  # Obtiene el valor de 'w' del formulario
@@ -1217,7 +1222,7 @@ def calcular_topsis():
         w = [float(value.strip()) for value in w_values if value.strip()]  # Convierte cada valor a flotante
 
         # Llama a la función de PSO en pso.py
-        datosTopsis = asyncio.run(ejecutar_topsis(w))
+        datosTopsis = asyncio.run(ejecutar_topsis(w, usuario))
         print("Resultados de la ejecución:", datosTopsis)
 
         # Devuelve los resultados
@@ -1831,9 +1836,14 @@ def descargar_excel_topsisaco():
 @app.route('/descargar-topsis')
 @roles_required('user','admin', 'superadmin')
 def descargar_excel_topsis():
-    directorio = 'Experiments/static'  
-    filename = 'TOPSIS_1.xlsx'
-    return send_from_directory(directorio, filename, as_attachment=True)
+    username = get_username()
+    file = obtener_ruta_excel(username , "TOPSIS")
+    directorio = os.path.dirname(file)
+    archivo = os.path.basename(file)
+    if not file:
+        return "No hay ejecuciones", 404
+    
+    return send_from_directory(directorio, archivo, as_attachment=True)
 
 @app.route('/descargar-moorav')
 @roles_required('user','admin', 'superadmin')
