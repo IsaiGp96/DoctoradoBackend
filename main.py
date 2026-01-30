@@ -220,6 +220,11 @@ def calcular_dapso():
 @app.route('/moorapso', methods=['POST'])
 @roles_required('user','admin', 'superadmin')
 def calcular_moorapso():
+    uid = session.get('user_id')  # <-- string key, NO lista
+    if uid:
+        user = db.session.get(User, uid)   # SQLAlchemy 2.x
+        if user:
+            usuario = user.username
     try:
         # Obtén los datos del formulario
         w_input = [float(request.form[f'w{i}']) for i in range(1, 6)]
@@ -235,7 +240,7 @@ def calcular_moorapso():
         r2 = [float(num.strip()) for num in r2_input.split(',')]
 
         # Llama a la función de PSO en pso.py
-        datosMoorapso = asyncio.run(ejecutar_moorapso(w, wwi, c1, c2, T, r1, r2))
+        datosMoorapso = asyncio.run(ejecutar_moorapso(w, wwi, c1, c2, T, r1, r2, usuario))
         print("Resultados de la ejecución:", datosMoorapso)
 
         # Obtén los resultados específicos que deseas mostrar
@@ -1660,9 +1665,14 @@ def descargar_excel_dapso():
 @app.route('/descargar-moorapso')
 @roles_required('user','admin', 'superadmin')
 def descargar_excel_moorapso():
-    directorio = 'Experiments/static'  
-    filename = 'MOORAPSO_1.xlsx'
-    return send_from_directory(directorio, filename, as_attachment=True)
+    username = get_username()
+    file = obtener_ruta_excel(username , "MOORAPSO")
+    directorio = os.path.dirname(file)
+    archivo = os.path.basename(file)
+    if not file:
+        return "No hay ejecuciones", 404
+    
+    return send_from_directory(directorio, archivo, as_attachment=True)
 
 @app.route('/descargar-topsispso')
 @roles_required('user','admin', 'superadmin')
