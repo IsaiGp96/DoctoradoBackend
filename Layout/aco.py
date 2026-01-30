@@ -11,9 +11,10 @@ import os
 import numpy as np
 import pandas as pd
 from openpyxl import load_workbook
+from src.utils.saveFiles import obtener_rutas_experimento
 
 
-async def ejecutar_aco(w, alpha, beta, rho, Q, n_ants, iter_max):
+async def ejecutar_aco(w, alpha, beta, rho, Q, n_ants, iter_max, username):
 
     hora_inicio = datetime.datetime.now()
     fecha_inicio = hora_inicio.date()
@@ -123,14 +124,14 @@ async def ejecutar_aco(w, alpha, beta, rho, Q, n_ants, iter_max):
     ####################################################################################
     ### Para guardar información en archivo de EXCEl
 
-    base_filename = 'Experiments/ACO'# Obtener el nombre del archivo base
-    counter = 1 # Inicializar un contador para el nombre del archivo
-    excel_filename = f'{base_filename}_{counter}.xlsx'
+    # base_filename = 'Experiments/ACO'# Obtener el nombre del archivo base
+    # counter = 1 # Inicializar un contador para el nombre del archivo
+    # excel_filename = f'{base_filename}_{counter}.xlsx'
 
     ### --Verificar si el archivo ya existe, si es así, incrementar el contador
-    while os.path.exists(excel_filename):
-        counter += 1
-        excel_filename = f'{base_filename}_{counter}.xlsx'
+    # while os.path.exists(excel_filename):
+    #     counter += 1
+    #     excel_filename = f'{base_filename}_{counter}.xlsx'
 
 
     ### -- Guardar los datos en un archivo xlsx
@@ -148,7 +149,21 @@ async def ejecutar_aco(w, alpha, beta, rho, Q, n_ants, iter_max):
     dataResult = pd.DataFrame(resultados)
     #dataMOO=pd.DataFrame(ResultadosMOORA)
 
-    with pd.ExcelWriter(excel_filename, engine='xlsxwriter') as writer:
+    today_str = datetime.datetime.now().strftime("%Y%m%d")
+    ts = datetime.datetime.now().strftime("%H%M%S")
+
+    excel_path, csv_path = obtener_rutas_experimento(
+        username=username,
+        today_str=today_str,
+        algorithm="ACO",
+        prefijo="_ACO",
+        ts=ts
+    )
+
+    print(excel_path)
+    print(csv_path)
+
+    with pd.ExcelWriter(excel_path, engine='xlsxwriter') as writer:
         dataT.to_excel(writer, sheet_name='Tiempos', index=False)
         #dataMOO.to_excel(writer, sheet_name='Resultados_MOORA')
         dataResult.to_excel(writer, sheet_name='Resultados_ejecución')
@@ -160,16 +175,15 @@ async def ejecutar_aco(w, alpha, beta, rho, Q, n_ants, iter_max):
         for i, col in enumerate(dataT.columns):
             column_len = max(dataT[col].astype(str).map(len).max(), len(col))
             worksheet.set_column(i, i, column_len)
-    print(f'Datos guardados en el archivo: {excel_filename}')
+    print(f'Datos guardados en el archivo: {excel_path}')
 
     ### -- Guardar los mismos datos en un archivo CSV con el mismo número
-    csv_filename = f'{base_filename}_{counter}.csv'
-    dataT.to_csv(csv_filename, index=False)
-    #dataMOO.to_csv(csv_filename, mode='a', index=False)
-    dataResult.to_csv(csv_filename, mode='a', index=False)
-    dataOrig.to_csv(csv_filename, mode='a', index=False)
-    dataI.to_csv(csv_filename, mode='a', index=False)
-    print(f'Datos guardados en el archivo: {csv_filename}')
+    dataT.to_csv(csv_path, index=False)
+    #dataMOO.to_csv(csv_path, mode='a', index=False)
+    dataResult.to_csv(csv_path, mode='a', index=False)
+    dataOrig.to_csv(csv_path, mode='a', index=False)
+    dataI.to_csv(csv_path, mode='a', index=False)
+    print(f'Datos guardados en el archivo: {csv_path}')
     print()
 
     await asyncio.sleep(0.1)

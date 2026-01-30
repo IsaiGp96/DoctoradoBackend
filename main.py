@@ -1145,6 +1145,11 @@ def aco():
 @app.route('/aco', methods=['POST'])
 @roles_required('user','admin', 'superadmin')
 def calcular_aco():
+    uid = session.get('user_id')  # <-- string key, NO lista
+    if uid:
+        user = db.session.get(User, uid)   # SQLAlchemy 2.x
+        if user:
+            usuario = user.username
     try:
        # Obtén los datos del formulario
         w = [0.400, 0.200, 0.030, 0.070, 0.300]
@@ -1156,7 +1161,7 @@ def calcular_aco():
         iter_max = int(request.form['T'])
         
         # Llama a la función de procesar_datos en pso.py
-        datosAco = asyncio.run(ejecutar_aco(w, alphaAco, beta, rho, Q, n_ants, iter_max))
+        datosAco = asyncio.run(ejecutar_aco(w, alphaAco, beta, rho, Q, n_ants, iter_max, usuario))
         print("Resultados de la ejecución:", datosAco)
 
         # Devuelve los resultados como JSON
@@ -1762,9 +1767,14 @@ def descargar_excel_topsisba():
 @app.route('/descargar-aco')
 @roles_required('user','admin', 'superadmin')
 def descargar_excel_aco():
-    directorio = 'Experiments/static'  
-    filename = 'ACO_1.xlsx'
-    return send_from_directory(directorio, filename, as_attachment=True)
+    username = get_username()
+    file = obtener_ruta_excel(username , "ACO")
+    directorio = os.path.dirname(file)
+    archivo = os.path.basename(file)
+    if not file:
+        return "No hay ejecuciones", 404
+    
+    return send_from_directory(directorio, archivo, as_attachment=True)
 #Aquí hubo un error
 @app.route('/descargar-daaco')
 @roles_required('user','admin', 'superadmin')
