@@ -8,6 +8,7 @@ ENV/
 _pycache_/
 *.py[cod]
 *$py.class
+*.pyc
 
 # Artefactos de distribución y metadatos
 build/
